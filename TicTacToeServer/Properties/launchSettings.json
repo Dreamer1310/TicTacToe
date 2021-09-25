@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "TicTacToeServer": {
+      "commandName": "Executable",
+      "executablePath": "C:\\Users\\ltsir\\Desktop\\documents\\Portfolio Staff\\TicTacToe\\TicTacToe\\TicTacToeServer\\bin\\Debug\\net5.0\\TicTacToeServer.exe"
+    }
+  }
+}

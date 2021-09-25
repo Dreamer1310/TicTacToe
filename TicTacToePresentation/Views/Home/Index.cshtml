@@ -1,0 +1,65 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+
+
+    <button class="btn btn-primary btn-sm" id="seat_button">Seat</button>
+    <button class="btn btn-primary btn-sm" id="seat_two_button">SeatTwo</button>
+    <button class="btn btn-primary btn-sm" id="seatout_button">SeatOut</button>
+    <button class="btn btn-primary btn-sm" id="seatout_two_button">SeatOutTwo</button>
+    <button class="btn btn-primary btn-sm" id="disconnect_button">Disconnect</button>
+</div>
+
+
+@section Scripts {
+
+    <script>
+
+        $(document).ready(() => {
+            const connection = new signalR.HubConnectionBuilder()
+                .withUrl("http://localhost:5102/lobby", {
+                    transport: signalR.HttpTransportType.WebSockets
+                })
+                .configureLogging(signalR.LogLevel.Debug)
+                .build();
+
+            connection.on("QueueData", (queues) => {
+                console.log(queues);
+            });
+            connection.on("YouLeftQueue", () => {
+                console.log(`You Left Queue.`)
+            });
+            connection.on("YouSetOnQueue", (queueId) => {
+                console.log(`You Set On Queue ${queueId}.`)
+            });
+            connection.on("CanSeat", (canSeat) => {
+                console.log(`Can you seat? ${canSeat}.`)
+            });
+
+            connection.start();
+
+
+            $('#seat_button').click(() => {
+                connection.invoke("Seat", 1);
+            });
+            $('#seat_two_button').click(() => {
+                connection.invoke("Seat", 2);
+            });
+            $('#seatout_button').click(() => {
+                connection.invoke("SeatOut", 1);
+            });
+            $('#seatout_two_button').click(() => {
+                connection.invoke("SeatOut", 2);
+            });
+            $('#disconnect_button').click(() => {
+                connection.stop();
+            });
+        });
+
+    </script>
+
+}
