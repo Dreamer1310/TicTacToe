@@ -8,5 +8,6 @@ namespace TicTacToeServer.Communication.Client
 {
     public interface IGameClient
     {
+        Task AddGame();
     }
 }
