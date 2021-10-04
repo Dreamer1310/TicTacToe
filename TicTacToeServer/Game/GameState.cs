@@ -21,10 +21,14 @@ namespace TicTacToeServer.Game
 
         }
 
+        internal void PlayerMadeMode(Move playerMove)
+        {
+
+        }
 
         internal Player<IGameClient> OpponnetOf(Player<IGameClient> player)
         {
-            return Players.First(x => x.ConnectionId != player.ConnectionId);
+            return Players.First(x => x.ID != player.ID);
         }
     }
 }

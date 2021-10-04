@@ -6,8 +6,7 @@ using System.Threading.Tasks;
 
 namespace TicTacToeServer.Game
 {
-    internal class GameConfig
+    internal class Move
     {
-        internal Int32 BoardSize { get; set; }
     }
 }

@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -25,12 +27,27 @@ namespace TicTacToeServer
         {
             services.AddSignalR();
 
+
+            services
+                .AddDataProtection()
+                .SetApplicationName("Let's starts with TicTacToe");
+
+            services
+                .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie(options =>
+                {
+                    options.Cookie.Name = ".AspNetCore.TicTacToe";
+                    options.ExpireTimeSpan = TimeSpan.FromHours(1);
+                    options.SlidingExpiration = true;
+                    options.Cookie.HttpOnly = false;
+                });
+
             services.AddCors(options =>
             {
                 options.AddDefaultPolicy(
                     builder =>
                     builder
-                        .WithOrigins("http://localhost:5101")
+                        .WithOrigins("http://localhost:5101", "https://localhost:5103")
                         //.AllowAnyOrigin()
                         .AllowAnyHeader()
                         .AllowAnyMethod()
@@ -47,7 +64,7 @@ namespace TicTacToeServer
             app.UseCors();
             app.UseRouting();
 
-            //app.UseAuthentication();
+            app.UseAuthentication();
 
             app.UseEndpoints(endpoints =>
             {

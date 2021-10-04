@@ -4,7 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Timers;
 using TicTacToeServer.Communication.Client;
+using TicTacToeServer.Lib;
 using TicTacToeServer.Lobby;
 using TicTacToeServer.Models;
 
@@ -14,30 +16,63 @@ namespace TicTacToeServer.Communication.Connection
     {
         public override Task OnConnectedAsync()
         {
-            LobbyManager.PlayerConnected(Clients.Caller, Context.ConnectionId);
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("User Succesfully Connected!");
-            Console.ForegroundColor = ConsoleColor.White;
-            return base.OnConnectedAsync();
+            try
+            {
+                LobbyManager.PlayerConnected(Clients.Caller, Context.UserIdentifier, Context.ConnectionId);
+                return base.OnConnectedAsync();
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+            
         }
 
         public override Task OnDisconnectedAsync(Exception exception)
         {
-            LobbyManager.PlayerDisconnected(Context.ConnectionId);
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("User Succesfully Disconnected!");
-            Console.ForegroundColor = ConsoleColor.White;
+            try
+            {
+                LobbyManager.PlayerDisconnected(Context.UserIdentifier);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
             return base.OnDisconnectedAsync(exception);
         }
 
         public void Seat(Int64 queueId)
         {
-            LobbyManager.Seat(queueId, Context.ConnectionId);
+            LobbyManager.Seat(queueId, Context.UserIdentifier);
         }
 
         public void SeatOut(Int64 queueId)
         {
-            LobbyManager.SeatOut(queueId, Context.ConnectionId);
+            LobbyManager.SeatOut(queueId, Context.UserIdentifier);
         }
+
+        public void StartTimer()
+        {
+            try
+            {
+                var player = LobbyManager.GetPlayerByUserId(Context.UserIdentifier);
+                player.Timer.Play();
+                Clients.Caller.Started();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+            
+        }
+        public void StopTimer()
+        {
+            var player = LobbyManager.GetPlayerByUserId(Context.UserIdentifier);
+            player.Timer.Pause();
+            Clients.Caller.Stopped();
+        }
+
+
     }
 }

@@ -1,5 +1,6 @@
 ﻿@{
     ViewData["Title"] = "Home Page";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <div class="text-center">
@@ -12,6 +13,9 @@
     <button class="btn btn-primary btn-sm" id="seatout_button">SeatOut</button>
     <button class="btn btn-primary btn-sm" id="seatout_two_button">SeatOutTwo</button>
     <button class="btn btn-primary btn-sm" id="disconnect_button">Disconnect</button>
+
+    <button class="btn btn-primary btn-sm" id="start_button">Start</button>
+    <button class="btn btn-primary btn-sm" id="stop_button">Stop</button>
 </div>
 
 
@@ -30,6 +34,9 @@
             connection.on("QueueData", (queues) => {
                 console.log(queues);
             });
+            connection.on("Disconnect", (queues) => {
+                console.log("Disconnected!");
+            });
             connection.on("YouLeftQueue", () => {
                 console.log(`You Left Queue.`)
             });
@@ -38,6 +45,15 @@
             });
             connection.on("CanSeat", (canSeat) => {
                 console.log(`Can you seat? ${canSeat}.`)
+            });
+
+
+            connection.on("Started", (msg) => {
+                console.log(`Timer ${msg}.`)
+            });
+
+            connection.on("Stopped", (msg) => {
+                console.log(`Timer ${msg}.`)
             });
 
             connection.start();
@@ -58,6 +74,16 @@
             $('#disconnect_button').click(() => {
                 connection.stop();
             });
+
+
+            $('#start_button').click(() => {
+                connection.invoke("StartTimer");
+            });
+            $('#stop_button').click(() => {
+                connection.invoke("StopTimer");
+            });
+
+
         });
 
     </script>

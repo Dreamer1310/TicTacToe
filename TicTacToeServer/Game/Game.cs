@@ -11,6 +11,7 @@ namespace TicTacToeServer.Game
 {
     internal class Game
     {
+        internal Int64 ID { get; set; }
         internal List<Player<IGameClient>> Players;
         internal Int32 BoardSize;
         private GameState _state;

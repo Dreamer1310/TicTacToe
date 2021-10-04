@@ -13,5 +13,9 @@ namespace TicTacToeServer.Communication.Client
         Task YouLeftQueue();
         Task YouSetOnQueue(Int64 queueId);
         Task CanSeat(Boolean canSeat);
+        Task StartGame(Int64 gameId);
+        Task Started(String msg = "Started");
+        Task Stopped(String msg = "Stopped");
+        Task Disconnect();
     }
 }
