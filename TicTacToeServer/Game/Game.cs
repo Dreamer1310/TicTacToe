@@ -11,6 +11,7 @@ namespace TicTacToeServer.Game
 {
     internal class Game
     {
+        private Object _sync = new();
         internal Int64 ID { get; set; }
         internal List<Player<IGameClient>> Players;
         internal Int32 BoardSize;
@@ -24,8 +25,27 @@ namespace TicTacToeServer.Game
 
             // Randomize GameFigures.
 
-            _state.CurrentPlayer = players.First(x => x.PlayerFigure == GameFigures.Cross);
+            //_state.CurrentPlayer = players.FirstOrdefa(x => x.PlayerFigure == GameFigures.Cross);
         }
 
+        internal Player<IGameClient> GetPlayer(String userId)
+        {
+            return Players.FirstOrDefault(x => x.ID == userId);
+        }
+
+        internal void Join(IGameClient client, String userId, String connectionId)
+        {
+            lock (_sync)
+            {
+                var player = GetPlayer(userId);
+                if (player == null)
+                {
+                    throw new InvalidOperationException("Invalid player for this table!");
+                }
+
+                player.Client = client;
+                player.ConnectionID = connectionId;
+            }
+        }
     }
 }

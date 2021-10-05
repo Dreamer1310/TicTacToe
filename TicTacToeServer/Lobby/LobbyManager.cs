@@ -56,10 +56,18 @@ namespace TicTacToeServer.Lobby
                         if (queue.IsFull)
                         {
                             RecreateQueue(queue);
-                            var game = GameManager.CreateGame(
-                                queue.Seats.Select(x => x.player.Clone<IGameClient>()).ToList(),
-                                new GameConfig { BoardSize = queue.BoadrSize });
-                            queue.Seats.ForEach(x => x.player.Client.StartGame(game.ID));
+                            try
+                            {
+                                var players = queue.Seats.Select(x => x.player.Clone<IGameClient>()).ToList();
+                                var game = GameManager.CreateGame(players, new GameConfig { BoardSize = queue.BoadrSize });
+                                queue.Seats.ForEach(x => x.player.Client.StartGame(game.ID));
+                            }
+                            catch (Exception ex)
+                            {
+
+                                throw;
+                            }
+                            
                             // TODO: Create Game, Send StartGame
                         }
                         _sender.SendYouSetOnQueue(player, queueId);
@@ -152,8 +160,6 @@ namespace TicTacToeServer.Lobby
                         _onlineUsers.Add(player);
                     }
 
-                    player.Timer = new CountDownTimer(5000, 1);
-                    player.Timer.OnTimeOut = () => Console.WriteLine("Elapsed");
                     _sender.SendQueueData(player);
                     _sender.SendCanSeat(player);
                 }

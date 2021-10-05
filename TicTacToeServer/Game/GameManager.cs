@@ -16,14 +16,20 @@ namespace TicTacToeServer.Game
         internal static void AddGame(Game game) => _games.Add(game);
         internal static void RemoveGame(Game game) => _games.Remove(game);
         
+        internal static Game GetGameByUserId(String userId)
+        {
+            return _games.FirstOrDefault(x => x.Players.Any(x => x.ID == userId));
+        }
+        
         internal static Game CreateGame(List<Player<IGameClient>> players, GameConfig config)
         {
             var game = new Game(players, config);
             game.ID = 1;
+
+
+            AddGame(game);
+
             return game;
         }
-
-
-
     }
 }

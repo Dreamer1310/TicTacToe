@@ -51,28 +51,5 @@ namespace TicTacToeServer.Communication.Connection
         {
             LobbyManager.SeatOut(queueId, Context.UserIdentifier);
         }
-
-        public void StartTimer()
-        {
-            try
-            {
-                var player = LobbyManager.GetPlayerByUserId(Context.UserIdentifier);
-                player.Timer.Play();
-                Clients.Caller.Started();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex);
-            }
-            
-        }
-        public void StopTimer()
-        {
-            var player = LobbyManager.GetPlayerByUserId(Context.UserIdentifier);
-            player.Timer.Pause();
-            Clients.Caller.Stopped();
-        }
-
-
     }
 }
