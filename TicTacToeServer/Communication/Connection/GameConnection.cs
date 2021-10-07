@@ -36,14 +36,7 @@ namespace TicTacToeServer.Communication.Connection
 
         public void Join()
         {
-            var game = GameManager.GetGameByUserId(Context.UserIdentifier);
-
-            if(game == null)
-            {
-                throw new Exception("Invalid Game!");
-            }
-
-            game.Join(Clients.Caller, Context.UserIdentifier, Context.ConnectionId);
+	        GameManager.Join(Clients.Caller, Context.UserIdentifier, Context.ConnectionId);
         }
     }
 }

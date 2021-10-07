@@ -115,7 +115,9 @@ namespace TicTacToeServer.Lobby
 
         internal static Boolean CanSeat(Player<ILobbyClient> player)
         {
-            return !_queues.Values.Any(x => x.Seats.Any(x => x.player?.ID == player.ID));
+            return 
+	            !_queues.Values.Any(x => x.Seats.Any(x => x.player?.ID == player.ID))
+	            && !GameManager.OnGoingGames.Any(x => x.Players.Any(x => x.ID == player.ID));
         }
 
 

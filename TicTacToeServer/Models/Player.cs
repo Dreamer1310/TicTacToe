@@ -16,6 +16,7 @@ namespace TicTacToeServer.Models
         internal String ConnectionID { get; set; }
         internal GameFigures PlayerFigure { get; set; }
         internal CountDownTimer Timer { get; set; }
+        internal Boolean Ready { get; set; }
 
 
         public virtual Player<TClone> Clone<TClone>()

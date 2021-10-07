@@ -24,11 +24,13 @@ namespace TicTacToeServer.Lib
             Duration - _elapsed;
 
         private Int64 _gameId;
+        private String _playerId;
 
-        public CountDownTimer(Double interval, Int64 gameId)
+        public CountDownTimer(Double interval, Int64 gameId, String playerId)
         {
             _timer = new Timer(interval);
             _gameId = gameId;
+            _playerId = playerId;
             IsRunning = false;
             Duration = interval;
 
