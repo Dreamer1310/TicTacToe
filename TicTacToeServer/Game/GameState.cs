@@ -11,14 +11,20 @@ namespace TicTacToeServer.Game
 {
     internal class GameState
     {
+        private GameConfig _config;
         internal Player<IGameClient> CurrentPlayer { get; set; }
-        internal List<Player<IGameClient>> Players;
-        internal GameFigures[][] GameBoard;
+        internal List<Player<IGameClient>> Players { get; set; }
+        internal List<Round> Rounds { get; set; }
+        internal GamePointsManager PointsManager { get; private set; }
+        internal Boolean GameFinished => Rounds.Count == _config.Till;
 
+        //internal Player<IGameClient> Winner => Rounds.Distinct(x => Rounds.Count(1)
 
         public GameState(GameConfig config, List<Player<IGameClient>> players)
         {
+            _config = config;
 	        Players = players;
+            PointsManager = new GamePointsManager(config.Till, players);
 
 	        for (int i = 0; i < Players.Count; i++)
 	        {
@@ -26,24 +32,6 @@ namespace TicTacToeServer.Game
 	        }
 
 	        CurrentPlayer = Players.First(x => x.PlayerFigure == GameFigures.Cross);
-
-	        GameBoard = new GameFigures[config.BoardSize][];
-
-            for (int i = 0; i < config.BoardSize; i++)
-	        {
-		        var arr = new GameFigures[config.BoardSize];
-                for (int j = 0; j < config.BoardSize; j++)
-                {
-	                arr[j] = GameFigures.None;
-                }
-
-                GameBoard[i] = arr;
-	        }
-        }
-
-        internal void PlayerMadeMode(Move playerMove)
-        {
-
         }
 
         internal Player<IGameClient> OpponnetOf(Player<IGameClient> player)
@@ -53,7 +41,38 @@ namespace TicTacToeServer.Game
 
         internal void StartGame()
         {
-	        throw new NotImplementedException();
+            Rounds = new List<Round>();
+        }
+
+        internal void AddRound(Round round)
+        {
+            Rounds.Add(round);
+        }
+
+        internal void ChangeFigures()
+        {
+            var temp = Players[0].PlayerFigure;
+            Players[0].PlayerFigure = Players[1].PlayerFigure;
+            Players[1].PlayerFigure = temp;
+        }
+
+        internal void PlayerMadeMove(Move move)
+        {
+            try
+            {
+                var round = Rounds.Last();
+                round.MakeMove(move);
+                CurrentPlayer = OpponnetOf(move.Player);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        internal void SendPlayerMadeMove(Player<IGameClient> player, Move move)
+        {
+            throw new NotImplementedException();
         }
     }
 }

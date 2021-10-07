@@ -24,5 +24,30 @@ namespace TicTacToeServer.Game
 	    {
 		    throw new NotImplementedException();
 	    }
+
+        internal void SendGameState(Player<IGameClient> player, GameState state)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal void SendGameData(Player<IGameClient> player)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal void SendGameStarted(Player<IGameClient> x)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal void SendRoundStarted(Player<IGameClient> x)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal void SendRoundFinished(Player<IGameClient> x, GameState state)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

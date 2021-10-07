@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TicTacToeServer.Game.Enums;
 
 namespace TicTacToeServer.Game
 {
-    internal class GameConfig
+    internal class Cell
     {
-        internal Int32 BoardSize { get; set; }
-        internal Int32 Till { get; set; }
+        internal Point Point { get; set; }
+        internal GameFigures GameFigure { get; set; }
     }
 }

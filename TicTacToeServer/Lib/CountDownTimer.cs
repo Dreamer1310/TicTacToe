@@ -17,7 +17,7 @@ namespace TicTacToeServer.Lib
         internal Boolean IsRunning { get; private set; }
 
 
-        private Double _leftInterval => IsRunning ?
+        internal Double LeftInterval => IsRunning ?
             Duration - (DateTime.Now - _startTime).TotalMilliseconds < 0 ?
             0 :
             Duration - (DateTime.Now - _startTime).TotalMilliseconds :
@@ -73,7 +73,7 @@ namespace TicTacToeServer.Lib
 
         private void TimerOnElapsed(Object sender, ElapsedEventArgs elapsedEventArgs)
         {
-            if (_leftInterval <= 0)
+            if (LeftInterval <= 0)
             {
                 Pause();
                 OnTimeOut?.Invoke();

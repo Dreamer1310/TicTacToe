@@ -59,7 +59,7 @@ namespace TicTacToeServer.Lobby
                             try
                             {
                                 var players = queue.Seats.Select(x => x.player.Clone<IGameClient>()).ToList();
-                                var game = GameManager.CreateGame(players, new GameConfig { BoardSize = queue.BoadrSize });
+                                var game = GameManager.CreateGame(players, new GameConfig { BoardSize = queue.BoadrSize, Till = queue.Till });
                                 queue.Seats.ForEach(x => x.player.Client.StartGame(game.ID));
                             }
                             catch (Exception ex)
