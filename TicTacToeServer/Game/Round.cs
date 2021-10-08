@@ -11,8 +11,10 @@ namespace TicTacToeServer.Game
 {
     internal class Round
     {
-        private Int32 _boardSize;
-        private List<Cell> _gameBoard;
+        private readonly Int32 _boardSize;
+        private readonly List<Cell> _gameBoard;
+
+        internal List<Cell> gameBoard => _gameBoard; 
         internal Player<IGameClient> Winner { get; private set; } 
         internal List<Point> WinningLine { get; private set; }
         internal RoundFinishReasons FinishReason { get; private set; }
@@ -44,7 +46,7 @@ namespace TicTacToeServer.Game
             try
             {
                 ValidateMove(move);
-                _gameBoard[move.Point.x * _boardSize + move.Point.y] = new Cell { Point = move.Point, GameFigure = move.Figure};
+                _gameBoard[move.Point.x * _boardSize + move.Point.y].GameFigure = move.Figure;
                 Moves.Add(move);
 
                 CheckBoard();

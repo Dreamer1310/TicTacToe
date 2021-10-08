@@ -22,7 +22,7 @@ namespace TicTacToeServer.Game
 
         private Boolean _isStarted => Status == GameStatus.Started;
         internal Int32 BoardSize;
-        internal Action GameFinished;
+        internal Func<Int64?> OnGameFinished { get; set; }
 
         internal GameStatus Status;
         private GameState _state;
@@ -51,7 +51,6 @@ namespace TicTacToeServer.Game
                 if (_allReady && !_isStarted)
 	            {
 		            StartGame();
-		            Status = GameStatus.Started;
 	            }
                 else if (!_isStarted)
                 {
@@ -70,13 +69,22 @@ namespace TicTacToeServer.Game
             }
         }
 
-        internal void MakeMove(Player<IGameClient> player, Move move)
+        internal void MakeMove(String playerId, Int32 x, Int32 y)
         {
             lock (_sync)
             {
                 try
                 {
                     CheckHold();
+
+                    var player = GetPlayer(playerId);
+
+                    if (player == null)
+                    {
+	                    throw new Exception("Invalid Player!");
+                    }
+
+                    var move = new Move(x, y, player);
 
                     if (_state.CurrentPlayer != player)
                     {
@@ -87,28 +95,24 @@ namespace TicTacToeServer.Game
                     StopLastTimer();
                     Players.ForEach(x => _state.SendPlayerMadeMove(player, move));
 
-                    if(_state.Rounds.Last().IsFinished)
-                    {
-                        HoldGame(() =>
-                        {
-                            Players.ForEach(x => _sender.SendRoundFinished(x, _state));
-                        }, 500);
-                        
-                        if(_state.GameFinished)
-                        {
-                            HoldGame(() =>
-                            {
-                                FinishGame(GameFinishReasons.TillPointsReach);
-                            }, 1000);
-                            return;
-                        }
 
-                        HoldGame(() =>
+                    if (_state.GameFinished)
+                    {
+	                    HoldGame(() =>
+	                    {
+		                    FinishGame(GameFinishReasons.TillPointsReach);
+	                    }, 1000);
+	                    return;
+                    }
+
+                    if (_state.Rounds.Last().IsFinished)
+                    {
+	                    HoldGame(() =>
                         {
+	                        Players.ForEach(x => _sender.SendRoundFinished(x, _state));
                             NextRound();
                         }, 500);
-                        
-                        return;
+	                    return;
                     }
 
                     HoldGame(() =>
@@ -126,7 +130,25 @@ namespace TicTacToeServer.Game
 
         private void FinishGame(GameFinishReasons finishReason)
         {
-            throw new NotImplementedException();
+	        if (_state.IsFinished)
+	        {
+		        throw new Exception("Game Is already finished");
+	        }
+
+	        _state.IsFinished = true;
+
+	        if (finishReason == GameFinishReasons.PlayerTimedOut)
+	        {
+                _state.Rounds.Last().FinishRound(RoundFinishReasons.PlayerTimedOut);
+                Players.ForEach(x => _sender.SendRoundFinished(x, _state));
+            }
+
+            OnGameFinished();
+            Status = GameStatus.Finished;
+
+            Players.ForEach(x => _sender.SendGameFinished(x, _state, finishReason));
+            
+
         }
 
         private void StopLastTimer()
@@ -159,6 +181,7 @@ namespace TicTacToeServer.Game
 
             
             _state.StartGame();
+            Status = GameStatus.Started;
             Players.ForEach(x => _sender.SendGameStarted(x));
             NextRound();           
         }
@@ -171,7 +194,7 @@ namespace TicTacToeServer.Game
 
             HoldGame(() =>
             {
-                Players.ForEach(x => _sender.SendRoundStarted(x));
+                Players.ForEach(x => _sender.SendRoundStarted(x, _state.Rounds.LastIndexOf(_state.Rounds.Last())));
                 AskMove();
             }, 500);
         }
@@ -183,7 +206,15 @@ namespace TicTacToeServer.Game
 
         private void PlayerTimedOut(Player<IGameClient> player)
         {
-	        throw new NotImplementedException();
+	        lock (_sync)
+	        {
+		        StopLastTimer();
+
+		        HoldGame(() =>
+		        {
+			        FinishGame(GameFinishReasons.PlayerTimedOut);
+		        }, 500);
+	        }
         }
 
         private void HoldGame(Action action, Int32 delay)

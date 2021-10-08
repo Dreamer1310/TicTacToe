@@ -11,18 +11,20 @@ namespace TicTacToeServer.Game
 {
     internal class GameState
     {
-        private GameConfig _config;
+        private readonly GameConfig _config;
         internal Player<IGameClient> CurrentPlayer { get; set; }
         internal List<Player<IGameClient>> Players { get; set; }
         internal List<Round> Rounds { get; set; }
         internal GamePointsManager PointsManager { get; private set; }
-        internal Boolean GameFinished => Rounds.Count == _config.Till;
+        internal Boolean GameFinished => Rounds.Count == _config.Till && Rounds.Last().IsFinished;
+        internal Boolean IsFinished { get; set; }
 
-        //internal Player<IGameClient> Winner => Rounds.Distinct(x => Rounds.Count(1)
+        internal Player<IGameClient> Winner { get; set; }
 
         public GameState(GameConfig config, List<Player<IGameClient>> players)
         {
             _config = config;
+            IsFinished = false;
 	        Players = players;
             PointsManager = new GamePointsManager(config.Till, players);
 
@@ -34,7 +36,7 @@ namespace TicTacToeServer.Game
 	        CurrentPlayer = Players.First(x => x.PlayerFigure == GameFigures.Cross);
         }
 
-        internal Player<IGameClient> OpponnetOf(Player<IGameClient> player)
+        internal Player<IGameClient> OpponentOf(Player<IGameClient> player)
         {
             return Players.First(x => x.ID != player.ID);
         }
@@ -62,7 +64,7 @@ namespace TicTacToeServer.Game
             {
                 var round = Rounds.Last();
                 round.MakeMove(move);
-                CurrentPlayer = OpponnetOf(move.Player);
+                CurrentPlayer = OpponentOf(move.Player);
             }
             catch (Exception)
             {

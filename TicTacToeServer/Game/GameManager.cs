@@ -27,6 +27,15 @@ namespace TicTacToeServer.Game
             game.ID = _gameId;
             _gameId++;
 
+            game.OnGameFinished = () =>
+            {
+	            Task.Run(() =>
+	            {
+                    RemoveGame(game);
+	            });
+	            return null;
+            };
+
             AddGame(game);
 
             return game;

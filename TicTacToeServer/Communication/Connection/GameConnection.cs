@@ -38,5 +38,19 @@ namespace TicTacToeServer.Communication.Connection
         {
 	        GameManager.Join(Clients.Caller, Context.UserIdentifier, Context.ConnectionId);
         }
+
+        public void MakeMove(Int32 x, Int32 y)
+        {
+	        var userId = Context.UserIdentifier;
+	        var game = GameManager.GetGameByUserId(userId);
+
+	        if (game == null)
+	        {
+		        Clients.Caller.OperationError();
+		        return;
+	        }
+
+	        game.MakeMove(userId, x, y);
+        }
     }
 }
