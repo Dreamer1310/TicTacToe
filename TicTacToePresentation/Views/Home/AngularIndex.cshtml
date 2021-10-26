@@ -1,0 +1,33 @@
+﻿@{
+    ViewBag.Title = "Angular Home Page";
+    Layout = null;
+}
+
+<!doctype html>
+<html lang="en" ng-app="lobbyApp">
+
+<head>
+    
+</head>
+
+<body ng-controller="lobbyController">
+    <button class="btn btn-primary" ng-click="logger()">Click Me!</button>
+    <button class="btn btn-primary" ng-click="seat(1)">Seat Me!</button>
+    <button class="btn btn-primary" ng-click="testDto()">Test DemoDto!</button>
+    <button class="btn btn-primary" ng-click="testList()">Test List!</button>
+    <button class="btn btn-primary" ng-click="testDictionary()">Test Dictionary!</button>
+
+    @*<script>var exports = {};</script>
+        <script src="~/Scripts/Lib/requier/require.js"></script>*@
+    <script>
+        var signalrAddress = 'http://localhost:5102/';
+    </script>
+    <script src="~/lib/jquery/dist/jquery.js"></script>
+    <script src="~/Scripts/angular.js"></script>
+    <script src="~/Scripts/Lib/signalrCore/dist/browser/signalr.js"></script>
+    <script src="~/Scripts/Communication/ServerLayer.js"></script>
+    <script src="~/Scripts/Lobby/Lobby.js"></script>
+
+</body>
+
+</html>

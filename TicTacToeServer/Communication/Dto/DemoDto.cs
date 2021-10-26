@@ -6,12 +6,14 @@ using System.Threading.Tasks;
 
 namespace TicTacToeServer.Communication.Dto
 {
-    public class QueueDto
+    public class DemoDto
     {
-        public Int64 ID { get; set; }
         public String Name { get; set; }
-        public Int64 PlayerCount { get; set; }
-        public Int64 BoadrSize { get; set; }
-        public Int64 Till { get; set; }
+        public Int32 Age { get; set; }
+
+        public override string ToString()
+        {
+            return $"Name: {Name}, Age: {Age}";
+        }
     }
 }

@@ -9,7 +9,7 @@ using TicTacToeServer.Lib;
 
 namespace TicTacToeServer.Models
 {
-    internal class Player<T>
+    public class Player<T>
     {
         internal T Client { get; set; }
         internal String ID { get; set; }

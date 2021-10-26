@@ -162,6 +162,7 @@ namespace TicTacToeServer.Lobby
                         _onlineUsers.Add(player);
                     }
 
+                    _sender.SendPlayers(player);
                     _sender.SendQueueData(player);
                     _sender.SendCanSeat(player);
                 }

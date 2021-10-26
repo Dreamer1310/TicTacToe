@@ -28,5 +28,10 @@ namespace TicTacToePresentation.Controllers
         {
             return View();
         }
+
+        public IActionResult AngularIndex()
+        {
+            return View();
+        }
     }
 }

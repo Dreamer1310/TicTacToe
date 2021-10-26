@@ -9,4 +9,11 @@
 		<FrameworkReference Include="Microsoft.AspNetCore.App" />
 	</ItemGroup>
 
+	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
+	</Target>
+
+	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
+	  <Exec Command="&quot;$(SolutionDir)Generator\ClientGenerator.exe&quot; &quot;$(TargetPath)&quot; &quot;$(SolutionDir)TicTacToePresentation\wwwroot\Scripts\Communication\\&quot;" />
+	</Target>
+
 </Project>

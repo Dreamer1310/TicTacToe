@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TicTacToeServer.Communication.Client;
+using TicTacToeServer.Communication.Dto;
 using TicTacToeServer.Models;
 
 namespace TicTacToeServer.Lobby
@@ -12,17 +13,15 @@ namespace TicTacToeServer.Lobby
     {
         internal void SendQueueData(Player<ILobbyClient> player)
         {
-            player.Client.QueueData(new 
-            {
-                Queues = LobbyManager.QueueCollection.Select(x => new
+            player.Client.QueueData(LobbyManager.QueueCollection.Select(x => new QueueDto
                 {
-                    x.ID,
-                    x.Name,
-                    x.PlayerCount,
-                    x.BoadrSize,
-                    x.Till
-                }).ToList()
-            });
+                    ID = x.ID,
+                    Name = x.Name,
+                    PlayerCount = x.PlayerCount,
+                    BoadrSize = x.BoadrSize,
+                    Till = x.Till
+                })
+                .ToList());
         }
         internal void SendYouSetOnQueue(Player<ILobbyClient> player, Int64 queueId)
         {
@@ -35,6 +34,11 @@ namespace TicTacToeServer.Lobby
         internal void SendCanSeat(Player<ILobbyClient> player)
         {
             player.Client.CanSeat(LobbyManager.CanSeat(player));
+        }
+
+        internal void SendPlayers(Player<ILobbyClient> player)
+        {
+            player.Client.Players(LobbyManager.OnlineUsers.ToDictionary(x => x.ID, x => new PlayerDto(x)));
         }
     }
 }
