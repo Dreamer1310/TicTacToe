@@ -36,7 +36,8 @@ namespace TicTacToeServer.Game
                     var cell = new Cell();
                     cell.Point = new Point(i, j);
                     cell.GameFigure = GameFigures.None;
-                    _gameBoard[i * _boardSize + j] = cell;
+                    _gameBoard.Insert(i * _boardSize + j, cell);
+                    //_gameBoard[i * _boardSize + j] = cell;
                 }
             }
         }

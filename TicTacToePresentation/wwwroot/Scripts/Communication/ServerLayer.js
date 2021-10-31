@@ -64,6 +64,12 @@ var ServerLayer;
             this.callbacks["OperationError"] = function () { return callback(); };
             return this;
         };
+        GameConnectionClient.prototype.PlayerMadeMove = function (callback) {
+            if (this.callbacks["PlayerMadeMove"])
+                throw "PlayerMadeMove is already bound!";
+            this.callbacks["PlayerMadeMove"] = function (move) { return callback(move); };
+            return this;
+        };
         return GameConnectionClient;
     }());
     ;
@@ -73,12 +79,6 @@ var ServerLayer;
             this.client = new GameConnectionClient();
             this.server = {
                 connection: {},
-                OnConnectedAsync: function () {
-                    _this.connection.send("OnConnectedAsync");
-                },
-                OnDisconnectedAsync: function (exception) {
-                    _this.connection.send("OnDisconnectedAsync", exception);
-                },
                 Join: function () {
                     _this.connection.send("Join");
                 },
@@ -178,6 +178,14 @@ var ServerLayer;
                     throw "OperationError implementation could not found!";
                 }
             });
+            this.connection.on("PlayerMadeMove", function (move) {
+                if (_this.client.callbacks["PlayerMadeMove"]) {
+                    _this.client.callbacks["PlayerMadeMove"](move);
+                }
+                else {
+                    throw "PlayerMadeMove implementation could not found!";
+                }
+            });
             this.server.connection = this.connection;
         }
         GameConnection.prototype.start = function () {
@@ -206,6 +214,8 @@ var ServerLayer;
                 throw new Error("GameFinished not implemented");
             if (!this.client.callbacks["OperationError"])
                 throw new Error("OperationError not implemented");
+            if (!this.client.callbacks["PlayerMadeMove"])
+                throw new Error("PlayerMadeMove not implemented");
         };
         return GameConnection;
     }());
@@ -218,7 +228,7 @@ var ServerLayer;
         LobbyConnectionClient.prototype.QueueData = function (callback) {
             if (this.callbacks["QueueData"])
                 throw "QueueData is already bound!";
-            this.callbacks["QueueData"] = function (queueDto, number) { return callback(queueDto, number); };
+            this.callbacks["QueueData"] = function (queueDto) { return callback(queueDto); };
             return this;
         };
         LobbyConnectionClient.prototype.YouLeftQueue = function (callback) {
@@ -278,12 +288,6 @@ var ServerLayer;
             this.client = new LobbyConnectionClient();
             this.server = {
                 connection: {},
-                OnConnectedAsync: function () {
-                    _this.connection.send("OnConnectedAsync");
-                },
-                OnDisconnectedAsync: function (exception) {
-                    _this.connection.send("OnDisconnectedAsync", exception);
-                },
                 Seat: function (queueId) {
                     _this.connection.send("Seat", queueId);
                 },
@@ -312,9 +316,9 @@ var ServerLayer;
                 transport: signalR.HttpTransportType.WebSockets
             })
                 .build();
-            this.connection.on("QueueData", function (queueDto, number) {
+            this.connection.on("QueueData", function (queueDto) {
                 if (_this.client.callbacks["QueueData"]) {
-                    _this.client.callbacks["QueueData"](queueDto, number);
+                    _this.client.callbacks["QueueData"](queueDto);
                 }
                 else {
                     throw "QueueData implementation could not found!";

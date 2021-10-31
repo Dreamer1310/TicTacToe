@@ -9,7 +9,7 @@ namespace TicTacToeServer.Communication.Client
 {
     public interface ILobbyClient
     {
-        Task QueueData(List<QueueDto> queueDto, Int64 number = 3);
+        Task QueueData(List<QueueDto> queueDto);
         Task YouLeftQueue();
         Task YouSetOnQueue(Int64 queueId);
         Task CanSeat(Boolean canSeat);

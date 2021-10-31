@@ -21,5 +21,6 @@ namespace TicTacToeServer.Communication.Client
         Task RoundFinished(RoundFinishedDto roundInfo);
         Task GameFinished(GameFinishedDto finalInfo);
         Task OperationError();
+        Task PlayerMadeMove(MoveDto move);
     }
 }

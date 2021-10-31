@@ -34,8 +34,9 @@ namespace TicTacToeServer.Game
 			{
 				CurrentPlayerId = state.CurrentPlayer.ID,
 				Players = state.Players.Select(x => new PlayerDto(x)).ToList(),
-				CurrentRound = new RoundDto
+				CurrentRound = state.Rounds == null ? null : new RoundDto
 				{
+					ID = state.Rounds.LastIndexOf(state.Rounds.Last()) + 1,
 					Status = state.Rounds.Last().Status,
 					GameBoard = state.Rounds.Last().gameBoard.Select(x => new CellDto
 					{
@@ -47,8 +48,7 @@ namespace TicTacToeServer.Game
 						GameFigure = x.GameFigure
 					})
 					.ToList(),
-				},
-				CurrentRoundId = state.Rounds.LastIndexOf(state.Rounds.Last()) + 1
+				}
 			});
         }
 
@@ -101,6 +101,20 @@ namespace TicTacToeServer.Game
 	                })
 					.ToDictionary(x => x.ID, x => x.Score)
             });
+        }
+
+        internal void SendPlayerMadeMove(Player<IGameClient> player, Move move)
+        {
+			player.Client.PlayerMadeMove(new MoveDto
+			{
+				Player = new PlayerDto(player),
+				Point = new PointDto
+                {
+					x = move.Point.x,
+					y = move.Point.y
+                },
+				Figure = move.Figure
+			});
         }
     }
 }

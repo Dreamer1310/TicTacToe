@@ -9,6 +9,7 @@
     lobbyApp.controller("lobbyController",
         ($scope: ILobbyScope) => {
             var button = $("#someID");
+            $scope.queues = [];
 
             $.extend($scope, {
                 click: () => console.log(button),
@@ -34,32 +35,35 @@
             });
 
             lobbyConnection.client
-                .CanSeat((canSeat) => {
+                .CanSeat((canSeat: boolean) => {
                     console.log(canSeat);
                 })
                 .Disconnect(() => {
                     console.log("Disconnect")
                 })
-                .QueueData((queues, a) => {
+                .QueueData((queues: ServerLayer.QueueDto[]) => {
                     $scope.queues = queues;
-                    console.log(queues, a);
+                    $scope.$apply();
+                    console.log($scope.queues);
                 })
-                .Started((msg) => {
+                .Started((msg: string) => {
                     console.log(msg);
                 })
-                .StartGame((gameId) => {
-                    console.log(gameId);
+                .StartGame((gameId: number) => {
+                    window.location.href = window.location.origin + (<any>window).gameUrl;
+
+                    console.log(window.location.origin);
                 })
-                .Stopped((msg) => {
+                .Stopped((msg: string) => {
                     console.log(msg);
                 })
                 .YouLeftQueue(() => {
                     console.log("You Left Queue");
                 })
-                .YouSetOnQueue((queueId) => {
+                .YouSetOnQueue((queueId: number) => {
                     console.log(queueId);
                 })
-                .Players((players) => {
+                .Players((players: { [Id: string]: ServerLayer.PlayerDto }) => {
                     console.log(players);
                 });
 

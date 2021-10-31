@@ -62,6 +62,12 @@ module ServerLayer {
 		    return this;
 		}
 		
+		PlayerMadeMove(callback: (move: MoveDto) => void): GameConnectionClient {
+		    if (this.callbacks["PlayerMadeMove"]) throw "PlayerMadeMove is already bound!";
+		    this.callbacks["PlayerMadeMove"] = (move: MoveDto) => callback(move);
+		    return this;
+		}
+		
 	
 	};
 	
@@ -152,6 +158,13 @@ module ServerLayer {
 			        throw "OperationError implementation could not found!";
 			    }
 			});
+			this.connection.on("PlayerMadeMove", (move: MoveDto) => {
+			    if (this.client.callbacks["PlayerMadeMove"]) {
+			        this.client.callbacks["PlayerMadeMove"](move);
+			    } else {
+			        throw "PlayerMadeMove implementation could not found!";
+			    }
+			});
 	
 	
 			this.server.connection = this.connection;
@@ -161,12 +174,6 @@ module ServerLayer {
 			connection: <signalR.HubConnection>{},
 	
 			
-			OnConnectedAsync: () => {
-			    this.connection.send("OnConnectedAsync");
-			},
-			OnDisconnectedAsync: (exception: string) => {
-			    this.connection.send("OnDisconnectedAsync", exception);
-			},
 			Join: () => {
 			    this.connection.send("Join");
 			},
@@ -195,6 +202,7 @@ module ServerLayer {
 			if (!this.client.callbacks["RoundFinished"]) throw new Error("RoundFinished not implemented");
 			if (!this.client.callbacks["GameFinished"]) throw new Error("GameFinished not implemented");
 			if (!this.client.callbacks["OperationError"]) throw new Error("OperationError not implemented");
+			if (!this.client.callbacks["PlayerMadeMove"]) throw new Error("PlayerMadeMove not implemented");
 	
 		}
 	};
@@ -202,9 +210,9 @@ module ServerLayer {
 	class LobbyConnectionClient {
 		callbacks: any = {};
 	
-		QueueData(callback: (queueDto: QueueDto[], number: number) => void): LobbyConnectionClient {
+		QueueData(callback: (queueDto: QueueDto[]) => void): LobbyConnectionClient {
 		    if (this.callbacks["QueueData"]) throw "QueueData is already bound!";
-		    this.callbacks["QueueData"] = (queueDto: QueueDto[], number: number) => callback(queueDto, number);
+		    this.callbacks["QueueData"] = (queueDto: QueueDto[]) => callback(queueDto);
 		    return this;
 		}
 		
@@ -276,9 +284,9 @@ module ServerLayer {
 				})
 				.build();
 	
-			this.connection.on("QueueData", (queueDto: QueueDto[], number: number) => {
+			this.connection.on("QueueData", (queueDto: QueueDto[]) => {
 			    if (this.client.callbacks["QueueData"]) {
-			        this.client.callbacks["QueueData"](queueDto, number);
+			        this.client.callbacks["QueueData"](queueDto);
 			    } else {
 			        throw "QueueData implementation could not found!";
 			    }
@@ -348,12 +356,6 @@ module ServerLayer {
 			connection: <signalR.HubConnection>{},
 	
 			
-			OnConnectedAsync: () => {
-			    this.connection.send("OnConnectedAsync");
-			},
-			OnDisconnectedAsync: (exception: string) => {
-			    this.connection.send("OnDisconnectedAsync", exception);
-			},
 			Seat: (queueId: number) => {
 			    this.connection.send("Seat", queueId);
 			},
@@ -428,10 +430,10 @@ module ServerLayer {
 		CurrentPlayerId: string;
 		Players: PlayerDto[];
 		CurrentRound: RoundDto;
-		CurrentRoundId: number;
 	}
 	export interface RoundDto
 	{
+		ID: number;
 		Status: RoundStatus;
 		GameBoard: CellDto[];
 	}
@@ -464,6 +466,12 @@ module ServerLayer {
 		GameFinishReason: GameFinishReasons;
 		WinnerID: string;
 		Scores: { [Id: string]: number};
+	}
+	export interface MoveDto
+	{
+		Player: PlayerDto;
+		Point: PointDto;
+		Figure: GameFigures;
 	}
 	export interface QueueDto
 	{

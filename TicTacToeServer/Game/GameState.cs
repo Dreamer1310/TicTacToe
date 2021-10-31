@@ -71,10 +71,5 @@ namespace TicTacToeServer.Game
                 throw;
             }
         }
-
-        internal void SendPlayerMadeMove(Player<IGameClient> player, Move move)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

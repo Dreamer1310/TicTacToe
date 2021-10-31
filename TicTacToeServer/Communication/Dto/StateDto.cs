@@ -12,6 +12,5 @@ namespace TicTacToeServer.Communication.Dto
         public String CurrentPlayerId { get; set; }
         public List<PlayerDto> Players { get; set; }
         public RoundDto CurrentRound { get; set; }
-        public Int64 CurrentRoundId { get; set; }
     }
 }

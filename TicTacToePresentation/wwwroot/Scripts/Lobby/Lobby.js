@@ -4,6 +4,7 @@
     var lobbyApp = angular.module("lobbyApp", []);
     lobbyApp.controller("lobbyController", function ($scope) {
         var button = $("#someID");
+        $scope.queues = [];
         $.extend($scope, {
             click: function () { return console.log(button); },
             seat: function (queueId) {
@@ -32,15 +33,17 @@
             .Disconnect(function () {
             console.log("Disconnect");
         })
-            .QueueData(function (queues, a) {
+            .QueueData(function (queues) {
             $scope.queues = queues;
-            console.log(queues, a);
+            $scope.$apply();
+            console.log($scope.queues);
         })
             .Started(function (msg) {
             console.log(msg);
         })
             .StartGame(function (gameId) {
-            console.log(gameId);
+            window.location.href = window.location.origin + window.gameUrl;
+            console.log(window.location.origin);
         })
             .Stopped(function (msg) {
             console.log(msg);

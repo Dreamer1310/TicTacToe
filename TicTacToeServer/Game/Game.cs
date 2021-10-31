@@ -33,6 +33,7 @@ namespace TicTacToeServer.Game
         {
             Players = players;
             _state = new GameState(config, players);
+            _sender = new GameSender();
             BoardSize = config.BoardSize;
             Status = GameStatus.NotStarted;
         }
@@ -61,7 +62,7 @@ namespace TicTacToeServer.Game
 	                _sender.SendAskMove(player);
                 }
 
-                if(_state.CurrentPlayer.Timer.IsRunning && !_isOnHold)
+                if((_state.CurrentPlayer?.Timer?.IsRunning) ?? false && !_isOnHold)
                 {
                     _sender.SendWaitingFor(player, _state.CurrentPlayer);
                 }
@@ -93,7 +94,7 @@ namespace TicTacToeServer.Game
 
                     _state.PlayerMadeMove(move);
                     StopLastTimer();
-                    Players.ForEach(x => _state.SendPlayerMadeMove(player, move));
+                    Players.ForEach(x => _sender.SendPlayerMadeMove(x, move));
 
 
                     if (_state.GameFinished)

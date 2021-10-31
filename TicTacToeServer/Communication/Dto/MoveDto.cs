@@ -7,10 +7,10 @@ using TicTacToeServer.Game.Enums;
 
 namespace TicTacToeServer.Communication.Dto
 {
-    public class RoundDto
+    public class MoveDto
     {
-        public Int32 ID { get; set; }
-        public RoundStatus Status { get; set; }
-        public List<CellDto> GameBoard { get; set; }
+        public PlayerDto Player { get; set; }
+        public PointDto Point { get; set; }
+        public GameFigures Figure { get; set; }
     }
 }
