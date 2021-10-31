@@ -1,6 +1,6 @@
 ﻿namespace TicTacToeServer.Game.Enums
 {
-    internal enum RoundStatus
+    public enum RoundStatus
     {
         NotFinished = 0,
         Finished = 1

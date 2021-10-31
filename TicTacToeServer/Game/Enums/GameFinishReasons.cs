@@ -1,6 +1,6 @@
 ﻿namespace TicTacToeServer.Game.Enums
 {
-    internal enum GameFinishReasons
+    public enum GameFinishReasons
     {
         TillPointsReach = 0,
         PlayerTimedOut = 1,

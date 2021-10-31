@@ -13,7 +13,7 @@
 	</Target>
 
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
-	  <Exec Command="&quot;$(SolutionDir)Generator\ClientGenerator.exe&quot; &quot;$(TargetPath)&quot; &quot;$(SolutionDir)TicTacToePresentation\wwwroot\Scripts\Communication\\&quot;" />
+	  <Exec Command="call &quot;$(DevEnvDir)..\Tools\VsDevCmd.bat&quot;&#xD;&#xA;&quot;$(SolutionDir)Generator\ClientGenerator.exe&quot; &quot;$(TargetPath)&quot; &quot;$(SolutionDir)TicTacToePresentation\wwwroot\Scripts\Communication\\&quot;" />
 	</Target>
 
 </Project>

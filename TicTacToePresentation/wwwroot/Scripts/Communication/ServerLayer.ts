@@ -14,21 +14,21 @@ module ServerLayer {
 		    return this;
 		}
 		
-		WaitingFor(callback: (player: Object) => void): GameConnectionClient {
+		WaitingFor(callback: (player: PlayerDto) => void): GameConnectionClient {
 		    if (this.callbacks["WaitingFor"]) throw "WaitingFor is already bound!";
-		    this.callbacks["WaitingFor"] = (player: Object) => callback(player);
+		    this.callbacks["WaitingFor"] = (player: PlayerDto) => callback(player);
 		    return this;
 		}
 		
-		WaitingToJoin(callback: (players: Object) => void): GameConnectionClient {
+		WaitingToJoin(callback: (players: PlayerDto[]) => void): GameConnectionClient {
 		    if (this.callbacks["WaitingToJoin"]) throw "WaitingToJoin is already bound!";
-		    this.callbacks["WaitingToJoin"] = (players: Object) => callback(players);
+		    this.callbacks["WaitingToJoin"] = (players: PlayerDto[]) => callback(players);
 		    return this;
 		}
 		
-		GameState(callback: (state: Object) => void): GameConnectionClient {
+		GameState(callback: (state: StateDto) => void): GameConnectionClient {
 		    if (this.callbacks["GameState"]) throw "GameState is already bound!";
-		    this.callbacks["GameState"] = (state: Object) => callback(state);
+		    this.callbacks["GameState"] = (state: StateDto) => callback(state);
 		    return this;
 		}
 		
@@ -44,15 +44,15 @@ module ServerLayer {
 		    return this;
 		}
 		
-		RoundFinished(callback: (roundInfo: Object) => void): GameConnectionClient {
+		RoundFinished(callback: (roundInfo: RoundFinishedDto) => void): GameConnectionClient {
 		    if (this.callbacks["RoundFinished"]) throw "RoundFinished is already bound!";
-		    this.callbacks["RoundFinished"] = (roundInfo: Object) => callback(roundInfo);
+		    this.callbacks["RoundFinished"] = (roundInfo: RoundFinishedDto) => callback(roundInfo);
 		    return this;
 		}
 		
-		GameFinished(callback: (finalInfo: Object) => void): GameConnectionClient {
+		GameFinished(callback: (finalInfo: GameFinishedDto) => void): GameConnectionClient {
 		    if (this.callbacks["GameFinished"]) throw "GameFinished is already bound!";
-		    this.callbacks["GameFinished"] = (finalInfo: Object) => callback(finalInfo);
+		    this.callbacks["GameFinished"] = (finalInfo: GameFinishedDto) => callback(finalInfo);
 		    return this;
 		}
 		
@@ -96,21 +96,21 @@ module ServerLayer {
 			        throw "AskMove implementation could not found!";
 			    }
 			});
-			this.connection.on("WaitingFor", (player: Object) => {
+			this.connection.on("WaitingFor", (player: PlayerDto) => {
 			    if (this.client.callbacks["WaitingFor"]) {
 			        this.client.callbacks["WaitingFor"](player);
 			    } else {
 			        throw "WaitingFor implementation could not found!";
 			    }
 			});
-			this.connection.on("WaitingToJoin", (players: Object) => {
+			this.connection.on("WaitingToJoin", (players: PlayerDto[]) => {
 			    if (this.client.callbacks["WaitingToJoin"]) {
 			        this.client.callbacks["WaitingToJoin"](players);
 			    } else {
 			        throw "WaitingToJoin implementation could not found!";
 			    }
 			});
-			this.connection.on("GameState", (state: Object) => {
+			this.connection.on("GameState", (state: StateDto) => {
 			    if (this.client.callbacks["GameState"]) {
 			        this.client.callbacks["GameState"](state);
 			    } else {
@@ -131,14 +131,14 @@ module ServerLayer {
 			        throw "RoundStarted implementation could not found!";
 			    }
 			});
-			this.connection.on("RoundFinished", (roundInfo: Object) => {
+			this.connection.on("RoundFinished", (roundInfo: RoundFinishedDto) => {
 			    if (this.client.callbacks["RoundFinished"]) {
 			        this.client.callbacks["RoundFinished"](roundInfo);
 			    } else {
 			        throw "RoundFinished implementation could not found!";
 			    }
 			});
-			this.connection.on("GameFinished", (finalInfo: Object) => {
+			this.connection.on("GameFinished", (finalInfo: GameFinishedDto) => {
 			    if (this.client.callbacks["GameFinished"]) {
 			        this.client.callbacks["GameFinished"](finalInfo);
 			    } else {
@@ -395,13 +395,61 @@ module ServerLayer {
 	};
 
     
-	export interface QueueDto
+	export enum RoundStatus
 	{
-		ID: number;
+		NotFinished = 0,
+		Finished = 1,
+	}
+	export enum GameFigures
+	{
+		None = 0,
+		Cross = 1,
+		Circle = 2,
+	}
+	export enum RoundFinishReasons
+	{
+		PlayerTimedOut = 0,
+		PlayerWon = 1,
+		Tie = 2,
+	}
+	export enum GameFinishReasons
+	{
+		TillPointsReach = 0,
+		PlayerTimedOut = 1,
+		PlayerResigned = 2,
+	}
+	export interface PlayerDto
+	{
+		ID: string;
 		Name: string;
-		PlayerCount: number;
-		BoadrSize: number;
-		Till: number;
+	}
+	export interface StateDto
+	{
+		CurrentPlayerId: string;
+		Players: PlayerDto[];
+		CurrentRound: RoundDto;
+		CurrentRoundId: number;
+	}
+	export interface RoundDto
+	{
+		Status: RoundStatus;
+		GameBoard: CellDto[];
+	}
+	export interface CellDto
+	{
+		Point: PointDto;
+		GameFigure: GameFigures;
+	}
+	export interface PointDto
+	{
+		x: number;
+		y: number;
+	}
+	export interface RoundFinishedDto
+	{
+		RoundFinishReason: RoundFinishReasons;
+		WinnerID: string;
+		Scores: { [Id: string]: number};
 	}
 	export interface KeyCollection
 	{
@@ -411,10 +459,19 @@ module ServerLayer {
 	{
 		Count: number;
 	}
-	export interface PlayerDto
+	export interface GameFinishedDto
 	{
-		ID: string;
+		GameFinishReason: GameFinishReasons;
+		WinnerID: string;
+		Scores: { [Id: string]: number};
+	}
+	export interface QueueDto
+	{
+		ID: number;
 		Name: string;
+		PlayerCount: number;
+		BoadrSize: number;
+		Till: number;
 	}
 	export interface DemoDto
 	{

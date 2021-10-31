@@ -3,10 +3,14 @@
     var lobbyConnection = new ServerLayer.LobbyConnection();
     var lobbyApp = angular.module("lobbyApp", []);
     lobbyApp.controller("lobbyController", function ($scope) {
+        var button = $("#someID");
         $.extend($scope, {
-            logger: function () { return console.log("GG"); },
+            click: function () { return console.log(button); },
             seat: function (queueId) {
                 lobbyConnection.server.Seat(queueId);
+            },
+            seatOut: function (queueId) {
+                lobbyConnection.server.SeatOut(queueId);
             },
             testDto: function () {
                 lobbyConnection.server.TestDto({ Name: "luka", Age: 21 });
@@ -29,6 +33,7 @@
             console.log("Disconnect");
         })
             .QueueData(function (queues, a) {
+            $scope.queues = queues;
             console.log(queues, a);
         })
             .Started(function (msg) {

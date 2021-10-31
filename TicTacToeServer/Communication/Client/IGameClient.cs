@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TicTacToeServer.Communication.Dto;
+using TicTacToeServer.Game.Enums;
 
 namespace TicTacToeServer.Communication.Client
 {
@@ -11,13 +13,13 @@ namespace TicTacToeServer.Communication.Client
         Task Disconnect();
 
         Task AskMove();
-        Task WaitingFor(Object player);
-        Task WaitingToJoin(Object players);
-        Task GameState(Object state);
+        Task WaitingFor(PlayerDto player);
+        Task WaitingToJoin(List<PlayerDto> players);
+        Task GameState(StateDto state);
         Task GameStarted();
         Task RoundStarted(Int32 roundId);
-        Task RoundFinished(Object roundInfo);
-        Task GameFinished(Object finalInfo);
+        Task RoundFinished(RoundFinishedDto roundInfo);
+        Task GameFinished(GameFinishedDto finalInfo);
         Task OperationError();
     }
 }

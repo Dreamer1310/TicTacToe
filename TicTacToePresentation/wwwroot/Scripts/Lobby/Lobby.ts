@@ -8,12 +8,16 @@
 
     lobbyApp.controller("lobbyController",
         ($scope: ILobbyScope) => {
-
+            var button = $("#someID");
 
             $.extend($scope, {
-                logger: () => console.log("GG"),
+                click: () => console.log(button),
+
                 seat: (queueId) => {
                     lobbyConnection.server.Seat(queueId);
+                },
+                seatOut: (queueId) => {
+                    lobbyConnection.server.SeatOut(queueId);
                 },
                 testDto: () => {
                     lobbyConnection.server.TestDto(<ServerLayer.DemoDto>{Name: "luka", Age: 21});
@@ -37,6 +41,7 @@
                     console.log("Disconnect")
                 })
                 .QueueData((queues, a) => {
+                    $scope.queues = queues;
                     console.log(queues, a);
                 })
                 .Started((msg) => {

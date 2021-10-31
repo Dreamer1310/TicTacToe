@@ -415,5 +415,28 @@ var ServerLayer;
     }());
     ServerLayer.LobbyConnection = LobbyConnection;
     ;
+    var RoundStatus;
+    (function (RoundStatus) {
+        RoundStatus[RoundStatus["NotFinished"] = 0] = "NotFinished";
+        RoundStatus[RoundStatus["Finished"] = 1] = "Finished";
+    })(RoundStatus = ServerLayer.RoundStatus || (ServerLayer.RoundStatus = {}));
+    var GameFigures;
+    (function (GameFigures) {
+        GameFigures[GameFigures["None"] = 0] = "None";
+        GameFigures[GameFigures["Cross"] = 1] = "Cross";
+        GameFigures[GameFigures["Circle"] = 2] = "Circle";
+    })(GameFigures = ServerLayer.GameFigures || (ServerLayer.GameFigures = {}));
+    var RoundFinishReasons;
+    (function (RoundFinishReasons) {
+        RoundFinishReasons[RoundFinishReasons["PlayerTimedOut"] = 0] = "PlayerTimedOut";
+        RoundFinishReasons[RoundFinishReasons["PlayerWon"] = 1] = "PlayerWon";
+        RoundFinishReasons[RoundFinishReasons["Tie"] = 2] = "Tie";
+    })(RoundFinishReasons = ServerLayer.RoundFinishReasons || (ServerLayer.RoundFinishReasons = {}));
+    var GameFinishReasons;
+    (function (GameFinishReasons) {
+        GameFinishReasons[GameFinishReasons["TillPointsReach"] = 0] = "TillPointsReach";
+        GameFinishReasons[GameFinishReasons["PlayerTimedOut"] = 1] = "PlayerTimedOut";
+        GameFinishReasons[GameFinishReasons["PlayerResigned"] = 2] = "PlayerResigned";
+    })(GameFinishReasons = ServerLayer.GameFinishReasons || (ServerLayer.GameFinishReasons = {}));
 })(ServerLayer || (ServerLayer = {}));
 //# sourceMappingURL=ServerLayer.js.map

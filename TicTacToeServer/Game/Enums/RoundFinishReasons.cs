@@ -1,6 +1,6 @@
 ﻿namespace TicTacToeServer.Game.Enums
 {
-    internal enum RoundFinishReasons
+    public enum RoundFinishReasons
     {
         PlayerTimedOut = 0,
         PlayerWon = 1,
