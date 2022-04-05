@@ -27,6 +27,7 @@ namespace TicTacToeServer.Game
         internal GameStatus Status;
         private GameState _state;
         private GameSender _sender;
+        private CountDownTimer gameTimeOutTimer;
 
 
         public Game(List<Player<IGameClient>> players, GameConfig config)
@@ -36,6 +37,13 @@ namespace TicTacToeServer.Game
             _sender = new GameSender();
             BoardSize = config.BoardSize;
             Status = GameStatus.NotStarted;
+
+            gameTimeOutTimer = new CountDownTimer(30 * 1000, null, null);
+            gameTimeOutTimer.OnTimeOut = () =>
+            {
+                FinishGame(GameFinishReasons.GameTimedOut);
+            };
+            gameTimeOutTimer.Play();
         }
 
         internal Player<IGameClient> GetPlayer(String userId)
@@ -52,6 +60,7 @@ namespace TicTacToeServer.Game
                 if (_allReady && !_isStarted)
 	            {
 		            StartGame();
+                    gameTimeOutTimer.Pause();
 	            }
                 else if (!_isStarted)
                 {
@@ -70,7 +79,7 @@ namespace TicTacToeServer.Game
             }
         }
 
-        internal void MakeMove(String playerId, Int32 x, Int32 y)
+        internal void MakeMove(String playerId, Int32 x, Int32 y, GameShapes shape, FigureSizes size)
         {
             lock (_sync)
             {
@@ -85,25 +94,33 @@ namespace TicTacToeServer.Game
 	                    throw new Exception("Invalid Player!");
                     }
 
-                    var move = new Move(x, y, player);
-
                     if (_state.CurrentPlayer != player)
                     {
                         throw new Exception("Not your turn!");
                     }
 
+
+                    var figure = new GameFigure()
+                    {
+                        Shape = shape,
+                        Size = size
+                    };
+
+                    var move = new Move(x, y, player, figure);
+
+                    
                     _state.PlayerMadeMove(move);
                     StopLastTimer();
                     Players.ForEach(x => _sender.SendPlayerMadeMove(x, move));
 
 
-                    if (_state.GameFinished)
+                    if (!_state.Rounds.Last().IsFinished)
                     {
-	                    HoldGame(() =>
-	                    {
-		                    FinishGame(GameFinishReasons.TillPointsReach);
-	                    }, 1000);
-	                    return;
+                        HoldGame(() =>
+                        {
+                            AskMove();
+                        }, 500);
+                        return;
                     }
 
                     if (_state.Rounds.Last().IsFinished)
@@ -111,19 +128,26 @@ namespace TicTacToeServer.Game
 	                    HoldGame(() =>
                         {
 	                        Players.ForEach(x => _sender.SendRoundFinished(x, _state));
-                            NextRound();
-                        }, 500);
-	                    return;
-                    }
 
-                    HoldGame(() =>
-                    {
-                        AskMove();
-                    }, 500);
-                    
+                            if (_state.GameFinished)
+                            {
+                                HoldGame(() =>
+                                {
+                                    FinishGame(GameFinishReasons.TillPointsReach);
+                                }, 1000);
+                                return;
+                            }
+
+                            NextRound();
+
+                        }, 500);
+                    }
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine(ex);
+                    Console.ForegroundColor = ConsoleColor.White;
                     throw;
                 }
             }
@@ -230,7 +254,10 @@ namespace TicTacToeServer.Game
                 }
                 catch (Exception ex)
                 {
+                    Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine(ex);
+                    Console.ForegroundColor = ConsoleColor.White;
+                    throw;
                 }
             });
         }

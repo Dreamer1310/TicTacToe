@@ -7,24 +7,33 @@
 <html lang="en" ng-app="lobbyApp">
 
 <head>
-
+    <link href="~/css/MyStyles.css" rel="stylesheet" />
+    <link href="~/lib/bootstrap/dist/css/bootstrap.css" rel="stylesheet" />
 </head>
 
 <body ng-controller="lobbyController">
+    <div class="topnav">
+        <a class="active">TicTacToe</a>
+    </div>
+    <div class="mainContainer">
 
 
 
-    <div class="row">
-        <div class="col-md-3 col-sm-6" ng-repeat="q in queues">
-            <button class="btn btn-success" ng-click="seat(q.id)">Seat</button>
+        <div class="queueContainer">
+            <div class="row">
+                <div class="col-md-3 col-sm-6 queue" ng-repeat="q in queues">
+                    <button class="btn btn-success" ng-click="seat(q.id)">Seat</button>
 
-            <h3>{{q.name}}</h3>
-            <h3>{{q.playerCount}}</h3>
+                    <h3>{{q.name}}</h3>
+                    <h3>{{q.playerCount}}</h3>
 
-            <button class="btn btn-danger" ng-click="seatOut(q.id)">
-                SeatOut
-            </button>
+                    <button class="btn btn-danger" ng-click="seatOut(q.id)">
+                        SeatOut
+                    </button>
+                </div>
+            </div>
         </div>
+
     </div>
 
         <script>

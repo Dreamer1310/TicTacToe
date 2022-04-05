@@ -46,16 +46,10 @@
                     $scope.$apply();
                     console.log($scope.queues);
                 })
-                .Started((msg: string) => {
-                    console.log(msg);
-                })
                 .StartGame((gameId: number) => {
                     window.location.href = window.location.origin + (<any>window).gameUrl;
 
                     console.log(window.location.origin);
-                })
-                .Stopped((msg: string) => {
-                    console.log(msg);
                 })
                 .YouLeftQueue(() => {
                     console.log("You Left Queue");

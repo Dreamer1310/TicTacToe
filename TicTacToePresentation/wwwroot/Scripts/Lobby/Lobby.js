@@ -38,15 +38,9 @@
             $scope.$apply();
             console.log($scope.queues);
         })
-            .Started(function (msg) {
-            console.log(msg);
-        })
             .StartGame(function (gameId) {
             window.location.href = window.location.origin + window.gameUrl;
             console.log(window.location.origin);
-        })
-            .Stopped(function (msg) {
-            console.log(msg);
         })
             .YouLeftQueue(function () {
             console.log("You Left Queue");

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TicTacToeServer.Communication.Client;
+using TicTacToeServer.Communication.Dto;
 using TicTacToeServer.Models;
 
 namespace TicTacToeServer.Game
@@ -58,6 +59,8 @@ namespace TicTacToeServer.Game
 
 	        player.Client = client;
 	        player.ConnectionID = connectionId;
+
+            player.Client.PlayerInfo(new PlayerDto(player));
 
             game.Join(player);
         }

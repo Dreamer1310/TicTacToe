@@ -12,5 +12,6 @@ namespace TicTacToeServer.Communication.Dto
         public RoundFinishReasons RoundFinishReason { get; set; }
         public String WinnerID { get; set; }
         public Dictionary<String, Int32> Scores { get; set; }
+        public List<PointDto> WinningLine { get; set; }
     }
 }

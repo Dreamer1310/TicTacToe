@@ -70,6 +70,12 @@ var ServerLayer;
             this.callbacks["PlayerMadeMove"] = function (move) { return callback(move); };
             return this;
         };
+        GameConnectionClient.prototype.PlayerInfo = function (callback) {
+            if (this.callbacks["PlayerInfo"])
+                throw "PlayerInfo is already bound!";
+            this.callbacks["PlayerInfo"] = function (playerInfo) { return callback(playerInfo); };
+            return this;
+        };
         return GameConnectionClient;
     }());
     ;
@@ -82,8 +88,8 @@ var ServerLayer;
                 Join: function () {
                     _this.connection.send("Join");
                 },
-                MakeMove: function (x, y) {
-                    _this.connection.send("MakeMove", x, y);
+                MakeMove: function (point) {
+                    _this.connection.send("MakeMove", point);
                 }
             };
             this.stop = function () {
@@ -95,7 +101,7 @@ var ServerLayer;
             }
             this.connection = new signalR.HubConnectionBuilder()
                 .withUrl(address + "game", {
-                transport: signalR.HttpTransportType.WebSockets
+                transport: signalR.HttpTransportType.WebSockets,
             })
                 .build();
             this.connection.on("Disconnect", function () {
@@ -186,6 +192,14 @@ var ServerLayer;
                     throw "PlayerMadeMove implementation could not found!";
                 }
             });
+            this.connection.on("PlayerInfo", function (playerInfo) {
+                if (_this.client.callbacks["PlayerInfo"]) {
+                    _this.client.callbacks["PlayerInfo"](playerInfo);
+                }
+                else {
+                    throw "PlayerInfo implementation could not found!";
+                }
+            });
             this.server.connection = this.connection;
         }
         GameConnection.prototype.start = function () {
@@ -216,6 +230,8 @@ var ServerLayer;
                 throw new Error("OperationError not implemented");
             if (!this.client.callbacks["PlayerMadeMove"])
                 throw new Error("PlayerMadeMove not implemented");
+            if (!this.client.callbacks["PlayerInfo"])
+                throw new Error("PlayerInfo not implemented");
         };
         return GameConnection;
     }());
@@ -253,18 +269,6 @@ var ServerLayer;
             if (this.callbacks["StartGame"])
                 throw "StartGame is already bound!";
             this.callbacks["StartGame"] = function (gameId) { return callback(gameId); };
-            return this;
-        };
-        LobbyConnectionClient.prototype.Started = function (callback) {
-            if (this.callbacks["Started"])
-                throw "Started is already bound!";
-            this.callbacks["Started"] = function (msg) { return callback(msg); };
-            return this;
-        };
-        LobbyConnectionClient.prototype.Stopped = function (callback) {
-            if (this.callbacks["Stopped"])
-                throw "Stopped is already bound!";
-            this.callbacks["Stopped"] = function (msg) { return callback(msg); };
             return this;
         };
         LobbyConnectionClient.prototype.Players = function (callback) {
@@ -356,22 +360,6 @@ var ServerLayer;
                     throw "StartGame implementation could not found!";
                 }
             });
-            this.connection.on("Started", function (msg) {
-                if (_this.client.callbacks["Started"]) {
-                    _this.client.callbacks["Started"](msg);
-                }
-                else {
-                    throw "Started implementation could not found!";
-                }
-            });
-            this.connection.on("Stopped", function (msg) {
-                if (_this.client.callbacks["Stopped"]) {
-                    _this.client.callbacks["Stopped"](msg);
-                }
-                else {
-                    throw "Stopped implementation could not found!";
-                }
-            });
             this.connection.on("Players", function (players) {
                 if (_this.client.callbacks["Players"]) {
                     _this.client.callbacks["Players"](players);
@@ -406,10 +394,6 @@ var ServerLayer;
                 throw new Error("CanSeat not implemented");
             if (!this.client.callbacks["StartGame"])
                 throw new Error("StartGame not implemented");
-            if (!this.client.callbacks["Started"])
-                throw new Error("Started not implemented");
-            if (!this.client.callbacks["Stopped"])
-                throw new Error("Stopped not implemented");
             if (!this.client.callbacks["Players"])
                 throw new Error("Players not implemented");
             if (!this.client.callbacks["Disconnect"])

@@ -9,6 +9,9 @@ using TicTacToeServer.Models;
 
 namespace TicTacToeServer.Lobby
 {
+    /// <summary>
+    /// Sender that sends data to users via socket
+    /// </summary>
     internal class LobbySender
     {
         internal void SendQueueData(Player<ILobbyClient> player)

@@ -11,6 +11,6 @@ namespace TicTacToeServer.Communication.Dto
     public class CellDto
     {
         public PointDto Point { get; set; }
-        public GameFigures GameFigure { get; set; }
+        public GameFigureDto GameFigure { get; set; }
     }
 }

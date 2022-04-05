@@ -10,6 +10,9 @@ using TicTacToeServer.Models;
 
 namespace TicTacToeServer.Lobby
 {
+    /// <summary>
+    /// Manages whole lobby. Player connection, sitting on table and etc.
+    /// </summary>
     internal class LobbyManager
     {
         private static Object Sync = new();
@@ -64,7 +67,9 @@ namespace TicTacToeServer.Lobby
                             }
                             catch (Exception ex)
                             {
-
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                Console.WriteLine(ex);
+                                Console.ForegroundColor = ConsoleColor.White;
                                 throw;
                             }
                             
@@ -85,6 +90,7 @@ namespace TicTacToeServer.Lobby
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine(ex);
                 Console.ForegroundColor = ConsoleColor.White;
+                throw;
             }
 
         }
@@ -110,6 +116,7 @@ namespace TicTacToeServer.Lobby
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine(ex);
                 Console.ForegroundColor = ConsoleColor.White;
+                throw;
             }
         }
 
@@ -161,6 +168,7 @@ namespace TicTacToeServer.Lobby
                         };
                         _onlineUsers.Add(player);
                     }
+
 
                     _sender.SendPlayers(player);
                     _sender.SendQueueData(player);

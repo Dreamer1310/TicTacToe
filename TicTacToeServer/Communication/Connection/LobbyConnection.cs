@@ -13,6 +13,7 @@ using TicTacToeServer.Models;
 
 namespace TicTacToeServer.Communication.Connection
 {
+    // Lobby connection. Actions that player call on server.
     public class LobbyConnection : Hub<ILobbyClient>
     {
         public override Task OnConnectedAsync()
@@ -20,14 +21,16 @@ namespace TicTacToeServer.Communication.Connection
             try
             {
                 LobbyManager.PlayerConnected(Clients.Caller, Context.UserIdentifier, Context.ConnectionId);
-                return base.OnConnectedAsync();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine(ex);
+                Console.ForegroundColor = ConsoleColor.White;
+                // todo: operatioError
                 throw;
             }
-            
+            return base.OnConnectedAsync();
         }
 
         public override Task OnDisconnectedAsync(Exception exception)
@@ -38,7 +41,11 @@ namespace TicTacToeServer.Communication.Connection
             }
             catch (Exception ex)
             {
+                Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine(ex);
+                Console.ForegroundColor = ConsoleColor.White;
+                // todo: operatioError
+                throw;
             }
             return base.OnDisconnectedAsync(exception);
         }

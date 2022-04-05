@@ -3,17 +3,23 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net5.0</TargetFramework>
+    <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="nssm.exe" />
+    <None Remove="run.bat" />
+  </ItemGroup>
 
 	<ItemGroup>
 		<FrameworkReference Include="Microsoft.AspNetCore.App" />
 	</ItemGroup>
 
-	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
-	</Target>
+	<ItemGroup>
+	  <PackageReference Include="EmbedIO" Version="3.4.3" />
+	</ItemGroup>
 
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
-	  <Exec Command="call &quot;$(DevEnvDir)..\Tools\VsDevCmd.bat&quot;&#xD;&#xA;&quot;$(SolutionDir)Generator\ClientGenerator.exe&quot; &quot;$(TargetPath)&quot; &quot;$(SolutionDir)TicTacToePresentation\wwwroot\Scripts\Communication\\&quot;" />
 	</Target>
 
 </Project>

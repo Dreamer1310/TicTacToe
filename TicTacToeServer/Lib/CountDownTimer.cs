@@ -7,6 +7,9 @@ using System.Timers;
 
 namespace TicTacToeServer.Lib
 {
+    /// <summary>
+    /// Timer to give players in-game time for actions, if idle for too long, player times-out
+    /// </summary>
     internal class CountDownTimer : IDisposable
     {
         internal Action OnTimeOut { get; set; }
@@ -23,10 +26,10 @@ namespace TicTacToeServer.Lib
             Duration - (DateTime.Now - _startTime).TotalMilliseconds :
             Duration - _elapsed;
 
-        private Int64 _gameId;
+        private Int64? _gameId;
         private String _playerId;
 
-        public CountDownTimer(Double interval, Int64 gameId, String playerId)
+        public CountDownTimer(Double interval, Int64? gameId, String playerId)
         {
             _timer = new Timer(interval);
             _gameId = gameId;

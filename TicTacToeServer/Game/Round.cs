@@ -13,8 +13,10 @@ namespace TicTacToeServer.Game
     {
         private readonly Int32 _boardSize;
         private readonly List<Cell> _gameBoard;
+        private readonly Board _board;
 
         internal List<Cell> gameBoard => _gameBoard; 
+        internal Board Board => _board; 
         internal Player<IGameClient> Winner { get; private set; } 
         internal List<Point> WinningLine { get; private set; }
         internal RoundFinishReasons FinishReason { get; private set; }
@@ -35,7 +37,7 @@ namespace TicTacToeServer.Game
                 {
                     var cell = new Cell();
                     cell.Point = new Point(i, j);
-                    cell.GameFigure = GameFigures.None;
+                    cell.GameFigure = new GameFigure();
                     _gameBoard.Insert(i * _boardSize + j, cell);
                     //_gameBoard[i * _boardSize + j] = cell;
                 }
@@ -47,13 +49,20 @@ namespace TicTacToeServer.Game
             try
             {
                 ValidateMove(move);
-                _gameBoard[move.Point.x * _boardSize + move.Point.y].GameFigure = move.Figure;
+                if (!_board.SetGameFigureAt(move.Point, move.Figure))
+                {
+                    throw new Exception($"Couldn't place figure... Point: {move.Point}; Figure: {move.Figure}");
+                }
+                //_gameBoard[move.Point.x * _boardSize + move.Point.y].GameFigure = move.Figure;
                 Moves.Add(move);
 
                 CheckBoard();
             }
             catch (Exception ex)
             {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine(ex);
+                Console.ForegroundColor = ConsoleColor.White;
                 throw;
             }            
         }
@@ -74,35 +83,15 @@ namespace TicTacToeServer.Game
             WinningLine = null;
             var move = Moves.Last();
 
-            if (_gameBoard.Where(x => x.Point.x == move.Point.x).All(x => x.GameFigure == move.Figure))
+            WinningLine = _board.GetFilledLine(move.Point, move.Figure);
+
+            if (WinningLine != null)
             {
-                WinningLine = _gameBoard.Where(x => x.Point.x == move.Point.x).Select(x => x.Point).ToList();
                 FinishRound(RoundFinishReasons.PlayerWon);
                 return;
             }
-
-            if (_gameBoard.Where(x => x.Point.y == move.Point.y).All(x => x.GameFigure == move.Figure))
-            {
-                WinningLine = _gameBoard.Where(x => x.Point.y == move.Point.y).Select(x => x.Point).ToList();
-                FinishRound(RoundFinishReasons.PlayerWon);
-                return;
-            }
-
-            if (_gameBoard.Where(x => x.Point.x == x.Point.y).All(x => x.GameFigure == move.Figure))
-            {
-                WinningLine = _gameBoard.Where(x => x.Point.x == x.Point.y).Select(x => x.Point).ToList();
-                FinishRound(RoundFinishReasons.PlayerWon);
-                return;
-            }
-
-            if (_gameBoard.Where(x => x.Point.x + x.Point.y == _boardSize - 1).All(x => x.GameFigure == move.Figure))
-            {
-                WinningLine = _gameBoard.Where(x => x.Point.x + x.Point.y == _boardSize - 1).Select(x => x.Point).ToList();
-                FinishRound(RoundFinishReasons.PlayerWon);
-                return;
-            }
-
-            if (_gameBoard.All(x => x.GameFigure != GameFigures.None))
+                
+            if (_board.AllFull())
             {
                 FinishRound(RoundFinishReasons.Tie);
                 return;
@@ -111,12 +100,19 @@ namespace TicTacToeServer.Game
 
         private void ValidateMove(Move move)
         {
-            if (move.Point.x < 0 || move.Point.y < 0 || move.Point.x >= _boardSize || move.Point.y >= _boardSize)
+            if (_board.IsOutOfBounds(move.Point))
             {
                 throw new Exception("Point is out of bounds!");
-            } 
+            }
 
-            if (_gameBoard.FirstOrDefault(x => x.Point.x == move.Point.x && x.Point.y == move.Point.y).GameFigure != GameFigures.None)
+            var figure = _board.GetFigureAt(move.Point);
+
+            if (figure.IsBiggerThanOrEquals(move.Figure))
+            {
+                throw new Exception("Figure is not big enough to place");
+            }
+
+            if (figure.Shape != GameShapes.None && figure.Size == FigureSizes.None)
             {
                 throw new Exception("Place is already taken!");
             }

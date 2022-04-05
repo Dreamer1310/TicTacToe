@@ -12,6 +12,7 @@ namespace TicTacToeServer.Game
     internal class GameState
     {
         private readonly GameConfig _config;
+        internal Int32 BoardSize => _config.BoardSize;
         internal Player<IGameClient> CurrentPlayer { get; set; }
         internal List<Player<IGameClient>> Players { get; set; }
         internal List<Round> Rounds { get; set; }
@@ -19,7 +20,7 @@ namespace TicTacToeServer.Game
         internal Boolean GameFinished => Rounds.Count == _config.Till && Rounds.Last().IsFinished;
         internal Boolean IsFinished { get; set; }
 
-        internal Player<IGameClient> Winner { get; set; }
+        internal Player<IGameClient> Winner { get; set; } // TODO: calculate winner, (or no winner at all).
 
         public GameState(GameConfig config, List<Player<IGameClient>> players)
         {
@@ -28,12 +29,12 @@ namespace TicTacToeServer.Game
 	        Players = players;
             PointsManager = new GamePointsManager(config.Till, players);
 
-	        for (int i = 0; i < Players.Count; i++)
+            for (int i = 0; i < Players.Count; i++)
 	        {
-		        Players[i].PlayerFigure = (GameFigures)(i + 1);
+		        Players[i].PlayerFigure = (GameShapes)(i + 1);
 	        }
 
-	        CurrentPlayer = Players.First(x => x.PlayerFigure == GameFigures.Cross);
+	        CurrentPlayer = Players.First(x => x.PlayerFigure == GameShapes.Cross);
         }
 
         internal Player<IGameClient> OpponentOf(Player<IGameClient> player)
@@ -62,12 +63,21 @@ namespace TicTacToeServer.Game
         {
             try
             {
+                if (!move.Player.HasFigure(move.Figure))
+                {
+                    throw new Exception($"Invalid mode... Player doesn't have this figure: {move.Figure}");
+                }
+
+
                 var round = Rounds.Last();
                 round.MakeMove(move);
                 CurrentPlayer = OpponentOf(move.Player);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine(ex);
+                Console.ForegroundColor = ConsoleColor.White;
                 throw;
             }
         }

@@ -13,12 +13,12 @@ namespace TicTacToeServer.Game
     {
         internal Player<IGameClient> Player { get; private set; }
         internal Point Point { get; private set; }
-        internal GameFigures Figure { get; private set; }
-
-        public Move(Int32 x, Int32 y,Player<IGameClient> player)
+        internal GameFigure Figure { get; private set; }
+        
+        public Move(Int32 x, Int32 y, Player<IGameClient> player, GameFigure figure)
         {
             Point = new Point(x, y);
-            Figure = player.PlayerFigure;
+            Figure = figure;
             Player = player;
         }
     }

@@ -10,7 +10,7 @@
                 makeMove: () => {
                     var x: number = +$('#xInput').val();
                     var y: number = +$('#yInput').val();
-                    gameConnection.server.MakeMove(x, y);
+                    //gameConnection.server.MakeMove();
                 }
             })
 

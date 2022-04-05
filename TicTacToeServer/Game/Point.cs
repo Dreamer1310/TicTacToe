@@ -16,5 +16,15 @@ namespace TicTacToeServer.Game
             this.x = x;
             this.y = y;
         }
+
+        internal Boolean Equals(Point other)
+        {
+            return x == other.x && y == other.y;
+        }
+
+        public override string ToString()
+        {
+            return $"x - {x}, y: - {y}";
+        }
     }
 }

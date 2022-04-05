@@ -6,7 +6,7 @@
             makeMove: function () {
                 var x = +$('#xInput').val();
                 var y = +$('#yInput').val();
-                gameConnection.server.MakeMove(x, y);
+                //gameConnection.server.MakeMove();
             }
         });
         gameConnection.client

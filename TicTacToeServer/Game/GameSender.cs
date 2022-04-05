@@ -32,6 +32,7 @@ namespace TicTacToeServer.Game
         {
 	        player.Client.GameState(new StateDto
 			{
+				GridSize = state.BoardSize,
 				CurrentPlayerId = state.CurrentPlayer.ID,
 				Players = state.Players.Select(x => new PlayerDto(x)).ToList(),
 				CurrentRound = state.Rounds == null ? null : new RoundDto
@@ -45,7 +46,11 @@ namespace TicTacToeServer.Game
 							x = x.Point.x,
 							y = x.Point.y
                         },
-						GameFigure = x.GameFigure
+						GameFigure = new GameFigureDto
+                        {
+							Shape = x.GameFigure.Shape,
+							Size = x.GameFigure.Size
+                        }
 					})
 					.ToList(),
 				}
@@ -81,7 +86,13 @@ namespace TicTacToeServer.Game
                         ID = x.Key,
                         Score = x.Count()
 	                })
-					.ToDictionary(x => x.ID, x => x.Score)
+					.ToDictionary(x => x.ID, x => x.Score),
+				WinningLine = state.Rounds.Last().WinningLine?.Select(x => new PointDto
+				{
+					x = x.x,
+					y = x.y
+				})
+				?.ToList()
 	        });
         }
 
@@ -91,7 +102,7 @@ namespace TicTacToeServer.Game
 	        {
 		        GameFinishReason = finishReason,
 		        WinnerID = state.Winner?.ID,
-                Scores = state.Rounds
+                Scores = state.Rounds == null ? new Dictionary<String, Int32>() : state.Rounds
 	                .Where(x => x.Winner != null)
 	                .GroupBy(x => x.Winner.ID)
 	                .Select(x => new
@@ -113,7 +124,11 @@ namespace TicTacToeServer.Game
 					x = move.Point.x,
 					y = move.Point.y
                 },
-				Figure = move.Figure
+				Figure = new GameFigureDto
+                {
+					Shape = move.Figure.Shape,
+					Size = move.Figure.Size
+                }
 			});
         }
     }

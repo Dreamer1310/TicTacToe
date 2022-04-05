@@ -10,6 +10,6 @@ namespace TicTacToeServer.Game
     internal class Cell
     {
         internal Point Point { get; set; }
-        internal GameFigures GameFigure { get; set; }
+        internal GameFigure GameFigure { get; set; }
     }
 }

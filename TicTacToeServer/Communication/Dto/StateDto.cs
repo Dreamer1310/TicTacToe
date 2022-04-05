@@ -9,6 +9,7 @@ namespace TicTacToeServer.Communication.Dto
 {
     public class StateDto
     {
+        public Int32 GridSize { get; set; }
         public String CurrentPlayerId { get; set; }
         public List<PlayerDto> Players { get; set; }
         public RoundDto CurrentRound { get; set; }

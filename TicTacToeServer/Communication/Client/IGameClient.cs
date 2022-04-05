@@ -8,10 +8,10 @@ using TicTacToeServer.Game.Enums;
 
 namespace TicTacToeServer.Communication.Client
 {
+    // Actions that can server tell to player in game coonection
     public interface IGameClient
     {
         Task Disconnect();
-
         Task AskMove();
         Task WaitingFor(PlayerDto player);
         Task WaitingToJoin(List<PlayerDto> players);
@@ -22,5 +22,6 @@ namespace TicTacToeServer.Communication.Client
         Task GameFinished(GameFinishedDto finalInfo);
         Task OperationError();
         Task PlayerMadeMove(MoveDto move);
+        Task PlayerInfo(PlayerDto playerInfo);
     }
 }

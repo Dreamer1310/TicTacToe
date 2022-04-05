@@ -68,6 +68,12 @@ module ServerLayer {
 		    return this;
 		}
 		
+		PlayerInfo(callback: (playerInfo: PlayerDto) => void): GameConnectionClient {
+		    if (this.callbacks["PlayerInfo"]) throw "PlayerInfo is already bound!";
+		    this.callbacks["PlayerInfo"] = (playerInfo: PlayerDto) => callback(playerInfo);
+		    return this;
+		}
+		
 	
 	};
 	
@@ -84,7 +90,7 @@ module ServerLayer {
 	
 			this.connection = new signalR.HubConnectionBuilder()
 				.withUrl(address + "game", {
-					transport: signalR.HttpTransportType.WebSockets
+					transport: signalR.HttpTransportType.WebSockets,
 				})
 				.build();
 	
@@ -165,6 +171,13 @@ module ServerLayer {
 			        throw "PlayerMadeMove implementation could not found!";
 			    }
 			});
+			this.connection.on("PlayerInfo", (playerInfo: PlayerDto) => {
+			    if (this.client.callbacks["PlayerInfo"]) {
+			        this.client.callbacks["PlayerInfo"](playerInfo);
+			    } else {
+			        throw "PlayerInfo implementation could not found!";
+			    }
+			});
 	
 	
 			this.server.connection = this.connection;
@@ -177,8 +190,8 @@ module ServerLayer {
 			Join: () => {
 			    this.connection.send("Join");
 			},
-			MakeMove: (x: number, y: number) => {
-			    this.connection.send("MakeMove", x, y);
+			MakeMove: (point: PointDto) => {
+			    this.connection.send("MakeMove", point);
 			}
 		}
 	
@@ -203,6 +216,7 @@ module ServerLayer {
 			if (!this.client.callbacks["GameFinished"]) throw new Error("GameFinished not implemented");
 			if (!this.client.callbacks["OperationError"]) throw new Error("OperationError not implemented");
 			if (!this.client.callbacks["PlayerMadeMove"]) throw new Error("PlayerMadeMove not implemented");
+			if (!this.client.callbacks["PlayerInfo"]) throw new Error("PlayerInfo not implemented");
 	
 		}
 	};
@@ -237,18 +251,6 @@ module ServerLayer {
 		StartGame(callback: (gameId: number) => void): LobbyConnectionClient {
 		    if (this.callbacks["StartGame"]) throw "StartGame is already bound!";
 		    this.callbacks["StartGame"] = (gameId: number) => callback(gameId);
-		    return this;
-		}
-		
-		Started(callback: (msg: string) => void): LobbyConnectionClient {
-		    if (this.callbacks["Started"]) throw "Started is already bound!";
-		    this.callbacks["Started"] = (msg: string) => callback(msg);
-		    return this;
-		}
-		
-		Stopped(callback: (msg: string) => void): LobbyConnectionClient {
-		    if (this.callbacks["Stopped"]) throw "Stopped is already bound!";
-		    this.callbacks["Stopped"] = (msg: string) => callback(msg);
 		    return this;
 		}
 		
@@ -319,20 +321,6 @@ module ServerLayer {
 			        throw "StartGame implementation could not found!";
 			    }
 			});
-			this.connection.on("Started", (msg: string) => {
-			    if (this.client.callbacks["Started"]) {
-			        this.client.callbacks["Started"](msg);
-			    } else {
-			        throw "Started implementation could not found!";
-			    }
-			});
-			this.connection.on("Stopped", (msg: string) => {
-			    if (this.client.callbacks["Stopped"]) {
-			        this.client.callbacks["Stopped"](msg);
-			    } else {
-			        throw "Stopped implementation could not found!";
-			    }
-			});
 			this.connection.on("Players", (players: { [Id: string]: PlayerDto}) => {
 			    if (this.client.callbacks["Players"]) {
 			        this.client.callbacks["Players"](players);
@@ -388,8 +376,6 @@ module ServerLayer {
 			if (!this.client.callbacks["YouSetOnQueue"]) throw new Error("YouSetOnQueue not implemented");
 			if (!this.client.callbacks["CanSeat"]) throw new Error("CanSeat not implemented");
 			if (!this.client.callbacks["StartGame"]) throw new Error("StartGame not implemented");
-			if (!this.client.callbacks["Started"]) throw new Error("Started not implemented");
-			if (!this.client.callbacks["Stopped"]) throw new Error("Stopped not implemented");
 			if (!this.client.callbacks["Players"]) throw new Error("Players not implemented");
 			if (!this.client.callbacks["Disconnect"]) throw new Error("Disconnect not implemented");
 	
@@ -427,6 +413,7 @@ module ServerLayer {
 	}
 	export interface StateDto
 	{
+		GridSize: number;
 		CurrentPlayerId: string;
 		Players: PlayerDto[];
 		CurrentRound: RoundDto;
@@ -452,6 +439,7 @@ module ServerLayer {
 		RoundFinishReason: RoundFinishReasons;
 		WinnerID: string;
 		Scores: { [Id: string]: number};
+		WinningLine: PointDto[];
 	}
 	export interface KeyCollection
 	{

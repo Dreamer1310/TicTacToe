@@ -9,8 +9,12 @@ using TicTacToeServer.Models;
 
 namespace TicTacToeServer.Lobby
 {
+    /// <summary>
+    /// Lobby table, after this fills with players game starts.
+    /// </summary>
     internal class Queue
     {
+        // synchronization object
         private Object _queueLock = new();
 
         private readonly List<QueueSeat> _seats = new List<QueueSeat> {new QueueSeat(), new QueueSeat() };
