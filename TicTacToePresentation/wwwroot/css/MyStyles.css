@@ -1,0 +1,55 @@
+﻿body {
+    margin: 0px !important;
+    background-color: rgba(0, 30, 255, 0.8);
+    height: 100% !important;
+}
+
+
+/* Add a black background color to the top navigation */
+.topnav {
+    background-color: rgba(150, 100, 50, 1);
+    overflow: hidden;
+}
+
+/* Style the links inside the navigation bar */
+.topnav a {
+    float: left;
+    color: #f2f2f2;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+    font-size: 17px;
+}
+
+/* Change the color of links on hover */
+.topnav a:hover {
+    background-color: #ddd;
+    color: black;
+}
+
+/* Add a color to the active/current link */
+.topnav a.active {
+    background-color: rgba(255, 50, 0, 0.8);
+    color: white;
+}
+
+.queueContainer {
+    padding: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    margin-left: 100px;
+    margin-right: 100px;
+    justify-content: center;
+    background-color: rgba(0, 0, 255, 1);
+}
+
+.mainContainer {
+    margin: 0px;
+    background-color: rgba(0, 30, 255, 0.8);
+    height: 100%;
+}
+
+.queue {
+    margin: 20px;
+    padding: 10px;
+}

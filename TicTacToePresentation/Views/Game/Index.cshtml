@@ -1,0 +1,32 @@
+﻿@{
+    ViewBag.Title = "Game";
+    Layout = null;
+}
+<!doctype html>
+<html lang="en" ng-app="gameApp">
+
+<head>
+
+</head>
+
+<body ng-controller="gameController">
+
+    <h3>Hello Game</h3>
+    <input type="number" id="xInput" />
+    <input type="number" id="yInput" />
+    <button ng-click="makeMove()">Make Move</button>
+
+
+
+    <script>
+        var signalrAddress = 'http://localhost:5102/';
+    </script>
+
+    <script src="~/lib/jquery/dist/jquery.js"></script>
+    <script src="~/Scripts/angular.js"></script>
+    <script src="~/Scripts/Lib/signalrCore/dist/browser/signalr.js"></script>
+    <script src="~/Scripts/Communication/ServerLayer.js"></script>
+    <script src="~/Scripts/Game/Game.js"></script>
+
+</body>
+</html>

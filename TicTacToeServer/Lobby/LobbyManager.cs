@@ -4,18 +4,25 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TicTacToeServer.Communication.Client;
+using TicTacToeServer.Game;
+using TicTacToeServer.Lib;
 using TicTacToeServer.Models;
 
 namespace TicTacToeServer.Lobby
 {
+    /// <summary>
+    /// Manages whole lobby. Player connection, sitting on table and etc.
+    /// </summary>
     internal class LobbyManager
     {
+        private static Object Sync = new();
         private static Object _queueLock = new();
         private static readonly List<Player<ILobbyClient>> _onlineUsers = new List<Player<ILobbyClient>>();
         private static readonly LobbySender _sender = new LobbySender();
 
         private static readonly Dictionary<Int64, Queue> _queues = new();
         internal static List<Queue> QueueCollection => _queues.Values.ToList();
+        internal static List<Player<ILobbyClient>> OnlineUsers => _onlineUsers;
         internal static Int32 OnlineUsersCount => _onlineUsers.Count;
 
         internal static void InitializeGameQueues()
@@ -38,28 +45,44 @@ namespace TicTacToeServer.Lobby
         }
 
 
-        internal static void Seat(Int64 queueId, String connectionId)
+        internal static void Seat(Int64 queueId, String userId)
         {
             try
             {
-                var player = GetPlayerByConnectionId(connectionId);
-                if (CanSeat(player))
+                lock (_queueLock)
                 {
-                    var queue = _queues[queueId];
-                    queue.SeatOnQueue(player);
-                    if (queue.IsFull)
+                    var player = GetPlayerByUserId(userId);
+                    if (CanSeat(player))
                     {
-                        RecreateQueue(queue);
-
-                        // TODO: Create Game, Send StartGame
+                        var queue = _queues[queueId];
+                        queue.SeatOnQueue(player);
+                        if (queue.IsFull)
+                        {
+                            RecreateQueue(queue);
+                            try
+                            {
+                                var players = queue.Seats.Select(x => x.player.Clone<IGameClient>()).ToList();
+                                var game = GameManager.CreateGame(players, new GameConfig { BoardSize = queue.BoadrSize, Till = queue.Till });
+                                queue.Seats.ForEach(x => x.player.Client.StartGame(game.ID));
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                Console.WriteLine(ex);
+                                Console.ForegroundColor = ConsoleColor.White;
+                                throw;
+                            }
+                            
+                            // TODO: Create Game, Send StartGame
+                        }
+                        _sender.SendYouSetOnQueue(player, queueId);
+                        _sender.SendCanSeat(player);
+                        _onlineUsers.ForEach(x => _sender.SendQueueData(x));
                     }
-                    _sender.SendYouSetOnQueue(player, queueId);
-                    _sender.SendCanSeat(player);
-                    _onlineUsers.ForEach(x => _sender.SendQueueData(x));
-                }
-                else
-                {
-                    throw new Exception("You can't seat on queue");
+                    else
+                    {
+                        throw new Exception("You can't seat on queue");
+                    }
                 }
             }
             catch (Exception ex)
@@ -67,21 +90,25 @@ namespace TicTacToeServer.Lobby
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine(ex);
                 Console.ForegroundColor = ConsoleColor.White;
+                throw;
             }
 
         }
 
-        internal static void SeatOut(Int64 queueId, String connectionId)
+        internal static void SeatOut(Int64 queueId, String userId)
         {
             try
             {
-                var player = GetPlayerByConnectionId(connectionId);
-                var queue = _queues[queueId];
-                queue.SeatOut(player);
+                lock (_queueLock)
+                {
+                    var player = GetPlayerByUserId(userId);
+                    var queue = _queues[queueId];
+                    queue.SeatOut(player);
 
-                _sender.SendYouLeftQueue(player);
-                _sender.SendCanSeat(player);
-                _onlineUsers.ForEach(x => _sender.SendQueueData(x));
+                    _sender.SendYouLeftQueue(player);
+                    _sender.SendCanSeat(player);
+                    _onlineUsers.ForEach(x => _sender.SendQueueData(x));
+                }
             }
             catch (Exception ex)
             {
@@ -89,12 +116,15 @@ namespace TicTacToeServer.Lobby
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine(ex);
                 Console.ForegroundColor = ConsoleColor.White;
+                throw;
             }
         }
 
         internal static Boolean CanSeat(Player<ILobbyClient> player)
         {
-            return !_queues.Values.Any(x => x.Seats.Any(x => x.player?.ConnectionId == player.ConnectionId));
+            return 
+	            !_queues.Values.Any(x => x.Seats.Any(x => x.player?.ID == player.ID))
+	            && !GameManager.OnGoingGames.Any(x => x.Players.Any(x => x.ID == player.ID));
         }
 
 
@@ -103,34 +133,47 @@ namespace TicTacToeServer.Lobby
             _onlineUsers.Add(player);
         }
 
-        internal static Player<ILobbyClient> GetPlayerByConnectionId(String connectionId)
+        internal static Player<ILobbyClient> GetPlayerByUserId (String userId)
         {
-            return _onlineUsers.FirstOrDefault(x => x.ConnectionId == connectionId);
+            return _onlineUsers.FirstOrDefault(x => x.ID == userId);
         }
 
 
-        internal static void PlayerConnected(ILobbyClient caller, String connectionId)
+        internal static void PlayerConnected(ILobbyClient caller, String userId, String connectionId)
         {
             try
             {
-                var player = GetPlayerByConnectionId(connectionId);
+                lock (Sync)
+                {
+                    var player = GetPlayerByUserId(userId);
 
-                if (player != null)
-                {
-                    player.Client = caller;
-                    player.ConnectionId = connectionId;
-                }
-                else
-                {
-                    player = new Player<ILobbyClient>
+                    if (player != null)
                     {
-                        Client = caller,
-                        ConnectionId = connectionId
-                    };
-                    _onlineUsers.Add(player);
+                        if (player.ConnectionID != null)
+                        {
+                            player.Client.Disconnect();
+                        }
+
+                        player.ConnectionID = connectionId;
+                        player.Client = caller;
+                        player.ID = userId;
+                    }
+                    else
+                    {
+                        player = new Player<ILobbyClient>
+                        {
+                            Client = caller,
+                            ID = userId,
+                            ConnectionID = connectionId
+                        };
+                        _onlineUsers.Add(player);
+                    }
+
+
+                    _sender.SendPlayers(player);
+                    _sender.SendQueueData(player);
+                    _sender.SendCanSeat(player);
                 }
-                _sender.SendQueueData(player);
-                _sender.SendCanSeat(player);
             }
             catch (Exception ex)
             {
@@ -140,19 +183,22 @@ namespace TicTacToeServer.Lobby
             }
         }
 
-        internal static void PlayerDisconnected(String connectionId)
+        internal static void PlayerDisconnected(String userId)
         {
-            var player = GetPlayerByConnectionId(connectionId);
-            if (player != null)
+            lock (Sync)
             {
-                var queue = _queues.Values.FirstOrDefault(x => x.Seats.Any(x => x.player?.ConnectionId == player.ConnectionId));
-                if (queue != null)
+                var player = GetPlayerByUserId(userId);
+                if (player != null)
                 {
-                    queue.SeatOut(player);
-                    _onlineUsers.ForEach(x => _sender.SendQueueData(x));
+                    var queue = _queues.Values.FirstOrDefault(x => x.Seats.Any(x => x.player?.ID == player.ID));
+                    if (queue != null)
+                    {
+                        queue.SeatOut(player);
+                        _onlineUsers.ForEach(x => _sender.SendQueueData(x));
+                    }
                 }
+                _onlineUsers.Remove(player);
             }
-            _onlineUsers.Remove(player);
         }
 
         private static void RecreateQueue(Queue queue)

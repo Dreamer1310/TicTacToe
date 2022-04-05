@@ -1,6 +1,6 @@
 ﻿namespace TicTacToeServer.Game.Enums
 {
-    internal enum GameFigures
+    public enum GameShapes
     {
         None = 0,
         Cross = 1,

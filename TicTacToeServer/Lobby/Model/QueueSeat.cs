@@ -8,6 +8,9 @@ using TicTacToeServer.Models;
 
 namespace TicTacToeServer.Lobby.Model
 {
+    /// <summary>
+    /// Single seat of queue(table) where player can sit
+    /// </summary>
     internal class QueueSeat
     {
         public Player<ILobbyClient> player { get; set; }

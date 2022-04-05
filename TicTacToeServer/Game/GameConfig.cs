@@ -8,6 +8,7 @@ namespace TicTacToeServer.Game
 {
     internal class GameConfig
     {
-        internal Int32 BoardSize { get; set }
+        internal Int32 BoardSize { get; set; }
+        internal Int32 Till { get; set; }
     }
 }

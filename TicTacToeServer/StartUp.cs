@@ -1,10 +1,15 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using EmbedIO;
+using EmbedIO.Routing;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using TicTacToeServer.Communication.Connection;
 using TicTacToeServer.Game;
@@ -25,20 +30,41 @@ namespace TicTacToeServer
         {
             services.AddSignalR();
 
+            services.AddControllers();
+
+            // Cookie encode/decode key
+            services
+                .AddDataProtection()
+                .SetApplicationName("Let's starts with TicTacToe");
+
+
+            // Cookie configs
+            services
+                .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie(options =>
+                {
+                    options.Cookie.Name = ".Auth.AspNetCore.TicTacToe";
+                    options.ExpireTimeSpan = TimeSpan.FromHours(1);
+                    options.SlidingExpiration = true;
+                    options.Cookie.HttpOnly = false;
+                });
+
+
+            // Cors to allow every origin connect
             services.AddCors(options =>
             {
                 options.AddDefaultPolicy(
                     builder =>
                     builder
-                        .WithOrigins("http://localhost:5101")
-                        //.AllowAnyOrigin()
+                        //.WithOrigins("http://localhost:5101", "https://localhost:5103", "http://10.172.22.102:5105")
+                        .AllowAnyOrigin()
                         .AllowAnyHeader()
                         .AllowAnyMethod()
-                        .AllowCredentials()
+                        //.AllowCredentials()
                     );
             });
 
-
+            // Init Lobby queues (quick games)
             LobbyManager.InitializeGameQueues();
         }
 
@@ -47,12 +73,18 @@ namespace TicTacToeServer
             app.UseCors();
             app.UseRouting();
 
-            //app.UseAuthentication();
+            app.UseAuthentication();
 
             app.UseEndpoints(endpoints =>
             {
+                // Configure socket endpoints
                 endpoints.MapHub<LobbyConnection>("/lobby");
                 endpoints.MapHub<GameConnection>("/game");
+
+                // Configure api endpoitns
+                endpoints.MapControllerRoute(
+                    name: "Api",
+                    pattern: "api/{controller=Login}/{action=SignIn}/{id?}");
             });
         }
     }

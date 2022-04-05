@@ -1,65 +1,51 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewBag.Title = "Angular Home Page";
+    Layout = null;
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<!doctype html>
+<html lang="en" ng-app="lobbyApp">
+
+<head>
+    <link href="~/css/MyStyles.css" rel="stylesheet" />
+    <link href="~/lib/bootstrap/dist/css/bootstrap.css" rel="stylesheet" />
+</head>
+
+<body ng-controller="lobbyController">
+    <div class="topnav">
+        <a class="active">TicTacToe</a>
+    </div>
+    <div class="mainContainer">
 
 
-    <button class="btn btn-primary btn-sm" id="seat_button">Seat</button>
-    <button class="btn btn-primary btn-sm" id="seat_two_button">SeatTwo</button>
-    <button class="btn btn-primary btn-sm" id="seatout_button">SeatOut</button>
-    <button class="btn btn-primary btn-sm" id="seatout_two_button">SeatOutTwo</button>
-    <button class="btn btn-primary btn-sm" id="disconnect_button">Disconnect</button>
-</div>
 
+        <div class="queueContainer">
+            <div class="row">
+                <div class="col-md-3 col-sm-6 queue" ng-repeat="q in queues">
+                    <button class="btn btn-success" ng-click="seat(q.id)">Seat</button>
 
-@section Scripts {
+                    <h3>{{q.name}}</h3>
+                    <h3>{{q.playerCount}}</h3>
 
-    <script>
+                    <button class="btn btn-danger" ng-click="seatOut(q.id)">
+                        SeatOut
+                    </button>
+                </div>
+            </div>
+        </div>
 
-        $(document).ready(() => {
-            const connection = new signalR.HubConnectionBuilder()
-                .withUrl("http://localhost:5102/lobby", {
-                    transport: signalR.HttpTransportType.WebSockets
-                })
-                .configureLogging(signalR.LogLevel.Debug)
-                .build();
+    </div>
 
-            connection.on("QueueData", (queues) => {
-                console.log(queues);
-            });
-            connection.on("YouLeftQueue", () => {
-                console.log(`You Left Queue.`)
-            });
-            connection.on("YouSetOnQueue", (queueId) => {
-                console.log(`You Set On Queue ${queueId}.`)
-            });
-            connection.on("CanSeat", (canSeat) => {
-                console.log(`Can you seat? ${canSeat}.`)
-            });
+        <script>
+            var signalrAddress = 'http://localhost:5102/';
+            var gameUrl = '/game/index';
+        </script>
+        <script src="~/lib/jquery/dist/jquery.js"></script>
+        <script src="~/Scripts/angular.js"></script>
+        <script src="~/Scripts/Lib/signalrCore/dist/browser/signalr.js"></script>
+        <script src="~/Scripts/Communication/ServerLayer.js"></script>
+        <script src="~/Scripts/Lobby/Lobby.js"></script>
 
-            connection.start();
+</body>
 
-
-            $('#seat_button').click(() => {
-                connection.invoke("Seat", 1);
-            });
-            $('#seat_two_button').click(() => {
-                connection.invoke("Seat", 2);
-            });
-            $('#seatout_button').click(() => {
-                connection.invoke("SeatOut", 1);
-            });
-            $('#seatout_two_button').click(() => {
-                connection.invoke("SeatOut", 2);
-            });
-            $('#disconnect_button').click(() => {
-                connection.stop();
-            });
-        });
-
-    </script>
-
-}
+</html>
