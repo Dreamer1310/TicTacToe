@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
@@ -34,9 +34,9 @@
     <TypeScriptCompile Include="wwwroot\Scripts\Lib\angular\angular-sanitize.d.ts" />
     <TypeScriptCompile Include="wwwroot\Scripts\Lib\angular\angular.d.ts" />
     <TypeScriptCompile Include="wwwroot\Scripts\Lib\jquery\jquery.d.ts" />
+    <TypeScriptCompile Include="wwwroot\Scripts\Lib\phaser\matter.d.ts" />
+	<TypeScriptCompile Include="wwwroot\Scripts\Lib\phaser\phaser.d.ts" />
     <TypeScriptCompile Include="wwwroot\Scripts\Lib\signalrCore\dist\esm\index.d.ts" />
     <TypeScriptCompile Include="wwwroot\Scripts\Lib\svgjs\svgjs.d.ts" />
   </ItemGroup>
-
-
 </Project>
